@@ -463,7 +463,7 @@ end;
 
 function DeviceMovedInYAxis() : Single;
 begin
-  result := GetNormalisedDeltaYAxis();
+  result := GetNormalisedDeltaXAxis();
   if result < _AccelerometerThreshold then
   begin
     result := 0;

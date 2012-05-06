@@ -753,7 +753,8 @@ implementation
   /// two non-transparent pixels collide.
   function CollisionWithinBitmapImages(bmp1: Bitmap; x1, y1: Longint; bmp2: Bitmap; x2, y2: Longint): Boolean; overload;
   begin
-    result := CollisionWithinBitmapImages(
+    if (not Assigned(bmp1)) or (not Assigned(bmp2)) then result := False
+    else result := CollisionWithinBitmapImages(
                 bmp1, x1, y1, bmp1^.width, bmp1^.height, 0, 0, 
                 bmp2, x2, y2, bmp2^.width, bmp2^.height, 0, 0);
   end;
@@ -856,6 +857,12 @@ implementation
     r: Single;
     dist: Single;
   begin
+    if not Assigned(s) then
+    begin
+      result := false;
+      exit;
+    end;
+
     if SpriteWidth(s) > SpriteHeight(s) then
       r := SpriteWidth(s) div 2
     else
@@ -983,6 +990,8 @@ implementation
     maxIdx: Longint;
     mvmtMag, prop: Single;
   begin
+    if not Assigned(s) then exit;
+
     mvmt := s^.velocity;
     maxIdx := -1;
     outVec := VectorOverLinesFromCircle(SpriteCollisionCircle(s), lines, mvmt, maxIdx);
@@ -1006,7 +1015,7 @@ implementation
   begin
     s1Mass := SpriteMass(s1);
     s2Mass := SpriteMass(s2);
-    if (s1Mass <= 0) or (s2Mass <= 0) then begin RaiseException('Collision with 0 or negative mass... ensure that mass is greater than 0'); exit; end;
+    if (s1Mass <= 0) or (s2Mass <= 0) then begin RaiseWarning('Collision with 0 or negative mass... ensure that mass is greater than 0'); exit; end;
     
     c1 := SpriteCollisionCircle(s1);
     c2 := SpriteCollisionCircle(s2);
@@ -1058,6 +1067,8 @@ implementation
     mvmtMag, prop: Single;
     spriteCenter, hitPt: Point2D;
   begin
+    if not Assigned(s) then exit;
+
     //TODO: what if height > width!!
     spriteCenter := CenterPoint(s);
     mvmt := s^.velocity;
@@ -1094,6 +1105,8 @@ implementation
     outVec, mvmt: Vector;
     mvmtMag, prop: Single;
   begin
+    if not Assigned(s) then exit;
+    
     mvmt := s^.velocity;
     hitIdx := -1;
     

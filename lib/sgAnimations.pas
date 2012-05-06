@@ -1021,6 +1021,8 @@ var
     i: Longint;
 begin
     // WriteLn('Freeing Animation Script ', HexStr(frm), ' = ', frm^.name);
+    if not assigned(frm) then exit;
+
     FreeNamedIndexCollection(frm^.animationIds);
     
     // WriteLn(frm^.nextAnimIdx);
@@ -1077,6 +1079,7 @@ function StartFrame(id: Longint; temp: AnimationScript) : AnimationFrame;
 begin
     result := nil;
     if temp = nil then exit;
+    
     if (id < 0) or (id > High(temp^.animations)) then exit;
     
     result := temp^.frames[id];

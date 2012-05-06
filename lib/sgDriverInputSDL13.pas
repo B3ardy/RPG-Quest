@@ -100,7 +100,8 @@ implementation
           SDL_KEYUP                        :HandleKeyupEvent(event.key.keysym.sym);
           SDL_MOUSEBUTTONUP                :ProcessMouseEvent(event.button.button); 
           {$IFDEF IOS}
-          SDL_FINGERDOWN, SDL_FINGERMOTION :HandleTouchEvent(iOSDriver.ProcessTouchEvent(event.tfinger.touchId));
+          SDL_FINGERDOWN                   :HandleTouchEvent(iOSDriver.ProcessTouchEvent(event.tfinger.touchId), true);
+          SDL_FINGERMOTION                 :HandleTouchEvent(iOSDriver.ProcessTouchEvent(event.tfinger.touchId), false);
           SDL_JOYAXISMOTION                :HandleAxisMotionEvent(iOSDriver.ProcessAxisMotionEvent());
           {$ENDIF}
         end;
@@ -137,7 +138,7 @@ implementation
   
   procedure WarpMouseProcedure(x,y : Word);
   begin
-    SDL_WarpMouse(x,y);
+    // SDL_WarpMouse(x,y);
   end;
 
   procedure LoadSDL13InputDriver(); 

@@ -494,7 +494,8 @@ implementation
   
   procedure CenterCameraOn(c: Character; const offset: Vector); overload;
   begin
-    CenterCameraOn(c^.CharSprite, Round(offset.x), Round(offset.y));
+    if Assigned(c) then 
+      CenterCameraOn(c^.CharSprite, Round(offset.x), Round(offset.y));
   end;
   
   procedure CenterCameraOn(s: Sprite; const offset: Vector); overload;

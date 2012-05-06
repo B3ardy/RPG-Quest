@@ -26,7 +26,7 @@ uses sgTypes, SDL13;
 	
 implementation
 	uses sgDriverGraphics, sysUtils, sgShared, sgGeometry, 
-		SDL13_gfx, SDL13_Image, sgSavePNG, sgInputBackend, sgDriverSDL13, sgDriverImages, sgUtils;	
+		SDL13_gfx, SDL13_Image, sgSavePNG, sgInputBackend, sgDriverSDL13, sgDriverImages, sgUtils, sgSDLUtils;	
 
   procedure DrawDirtyScreen();
   begin  
@@ -80,76 +80,82 @@ implementation
   end;
 	
 	function GetPixel32Procedure(bmp: Bitmap; x, y: Longint) :Color;
-	var
-    pixel, pixels: PUint32;
-    offset: Longword;
-  {$IFDEF FPC}
-    pixelAddress: PUint32;
-  {$ELSE}
-    pixelAddress: Longword;
-  {$ENDIF}
-    surface : PSDL_Surface;
-	begin
-		if not Assigned(GetSurface(bmp)) then begin RaiseWarning('SDL1.3 Graphics Driver - GetPixel32Procedure recieved empty Bitmap'); exit; end;
+  begin
+    result := GetSurfacePixel(GetSurface(bmp), x, y);
+  end;
+	// var
+ //    pixel, pixels: PUint32;
+ //    offset: Longword;
+ //  {$IFDEF FPC}
+ //    pixelAddress: PUint32;
+ //  {$ELSE}
+ //    pixelAddress: Longword;
+ //  {$ENDIF}
+ //    surface : PSDL_Surface;
+	// begin
+	// 	if not Assigned(GetSurface(bmp)) then begin RaiseWarning('SDL1.3 Graphics Driver - GetPixel32Procedure recieved empty Bitmap'); exit; end;
 		
-	  if (x < 0) or (x >= bmp^.width) or (y < 0) or (y >= bmp^.height) then
-    begin
-      result := 0;
-      exit;
-    end;  
+	//   if (x < 0) or (x >= bmp^.width) or (y < 0) or (y >= bmp^.height) then
+ //    begin
+ //      result := 0;
+ //      exit;
+ //    end;  
 		 
-		surface := GetSurface(bmp);		
+	// 	surface := GetSurface(bmp);		
 		
-    //Convert the pixels to 32 bit
-    pixels := surface^.pixels;
+ //    //Convert the pixels to 32 bit
+ //    pixels := surface^.pixels;
 
-    //Get the requested pixel
-    offset := (( y * surface^.w ) + x) * surface^.format^.BytesPerPixel;
+ //    //Get the requested pixel
+ //    offset := (( y * surface^.w ) + x) * surface^.format^.BytesPerPixel;
 
-    {$IFDEF FPC}
-      pixelAddress := pixels + (offset div 4);
-      pixel := PUint32(pixelAddress);
-    {$ELSE}
-      pixelAddress := Longword(pixels) + offset;
-      pixel := Ptr(pixelAddress);
-    {$ENDIF}
+ //    {$IFDEF FPC}
+ //      pixelAddress := pixels + (offset div 4);
+ //      pixel := PUint32(pixelAddress);
+ //    {$ELSE}
+ //      pixelAddress := Longword(pixels) + offset;
+ //      pixel := Ptr(pixelAddress);
+ //    {$ENDIF}
 
-    {$IF SDL_BYTEORDER = SDL_BIG_ENDIAN }
-    case surface^.format^.BytesPerPixel of
-      1: result := pixel^ and $000000ff;
-      2: result := pixel^ and $0000ffff;
-      3: result := pixel^ and $00ffffff;
-      4: result := pixel^;
-    else
-      RaiseException('Unsuported bit format...');
-      exit;
-    end;
-    {$ELSE}
-    case surface^.format^.BytesPerPixel of
-      1: result := pixel^ and $ff000000;
-      2: result := pixel^ and $ffff0000;
-      3: result := pixel^ and $ffffff00;
-      4: result := pixel^;
-    else
-      raise Exception.Create('Unsuported bit format...')
-    end;
-    {$IFEND}
-	end;
+ //    {$IF SDL_BYTEORDER = SDL_BIG_ENDIAN }
+ //    case surface^.format^.BytesPerPixel of
+ //      1: result := pixel^ and $000000ff;
+ //      2: result := pixel^ and $0000ffff;
+ //      3: result := pixel^ and $00ffffff;
+ //      4: result := pixel^;
+ //    else
+ //      RaiseException('Unsuported bit format...');
+ //      exit;
+ //    end;
+ //    {$ELSE}
+ //    case surface^.format^.BytesPerPixel of
+ //      1: result := pixel^ and $ff000000;
+ //      2: result := pixel^ and $ffff0000;
+ //      3: result := pixel^ and $ffffff00;
+ //      4: result := pixel^;
+ //    else
+ //      raise Exception.Create('Unsuported bit format...')
+ //    end;
+ //    {$IFEND}
+	// end;
 		
 	procedure PutPixelProcedure(bmp: Bitmap; clr: Color; x, y: Longint);
-  var
-      p:    ^Color;
-      bpp:  Longint;
   begin
-      if not Assigned(GetSurface(bmp)) then begin RaiseWarning('SDL1.3 Graphics Driver - PutPixelProcedure recieved empty Bitmap'); exit; end;
-        
-      bpp := GetSurface(bmp)^.format^.BytesPerPixel;
-      // Here p is the address to the pixel we want to set
-      p := GetSurface(bmp)^.pixels + y * GetSurface(bmp)^.pitch + x * bpp;
-
-      if bpp <> 4 then RaiseException('PutPixel only supported on 32bit images.');
-      p^ := clr;
+    PutSurfacePixel(GetSurface(bmp), clr, x, y);
   end;
+ //  var
+ //      p:    ^Color;
+ //      bpp:  Longint;
+ //  begin
+ //      if not Assigned(GetSurface(bmp)) then begin RaiseWarning('SDL1.3 Graphics Driver - PutPixelProcedure recieved empty Bitmap'); exit; end;
+        
+ //      bpp := GetSurface(bmp)^.format^.BytesPerPixel;
+ //      // Here p is the address to the pixel we want to set
+ //      p := GetSurface(bmp)^.pixels + y * GetSurface(bmp)^.pitch + x * bpp;
+
+ //      if bpp <> 4 then RaiseException('PutPixel only supported on 32bit images.');
+ //      p^ := clr;
+ //  end;
   
   procedure ColorComponentsProcedure(c: Color; var r, g, b, a: byte);
   begin  

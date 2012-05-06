@@ -303,7 +303,7 @@ implementation
             begin
                 if Length(current.data) <> 5 then
                 begin
-                        RaiseException('Invalid number of values for bitmap ' + current.name + ' expected 5 values for width, height, cellRows, cellCols, cellCount');
+                        RaiseException('Invalid number of values for bitmap ' + current.name + ' expected 5 values for width, height, cellCols, cellRows, cellCount');
                         exit;
                 end;
                 
@@ -386,17 +386,17 @@ implementation
     
     procedure ReleaseAllResources();
     begin
-        ReleaseAllAnimationScripts();
         ReleaseAllTimers();
         ReleaseAllFonts();
-        ReleaseAllBitmaps();
         ReleaseAllMusic();
-        ReleaseAllSoundEffects();
         ReleaseAllPanels();
         ReleaseAllMaps();
         ReleaseAllSprites();
         ReleaseAllCharacters();
         ReleaseAllConnections();
+        ReleaseAllAnimationScripts();
+        ReleaseAllSoundEffects();
+        ReleaseAllBitmaps();
         _Bundles.deleteAll();
     end;
     
@@ -765,6 +765,8 @@ implementation
                     if isSkip then break;
                 end;
                 
+                StopSoundEffect('SwinGameStart');
+
                 // i := 1;
                 // while isPaused or (i < 30) do
                 // begin
@@ -786,12 +788,13 @@ implementation
             try
                 ReleaseResourceBundle('splash.txt');
             except on e1: Exception do
-                {$IFDEF TRACE}
                 begin
-                    Trace('sgResources', 'Error', 'ShowLogos', 'Error freeing splash.');
-                    Trace('sgResources', 'Error', 'ShowLogos', e1.Message);
+                    RaiseWarning('Error releating splash resources.');
+                    {$IFDEF TRACE}
+                        Trace('sgResources', 'Error', 'ShowLogos', 'Error freeing splash.');
+                        Trace('sgResources', 'Error', 'ShowLogos', e1.Message);
+                    {$ENDIF}
                  end;
-                {$ENDIF}
             end;
             // ToggleWindowBorder();
             
@@ -920,7 +923,12 @@ implementation
         try
             
             if ParamCount() >= 0 then SetAppPath(ParamStr(0), True)
-            else _GuessAppPath()
+            else _GuessAppPath();
+            
+            {$IFDEF IOS}
+                applicationPath := applicationPath + '/MyResources/Resources';
+            {$ENDIF}
+            
             
         except
         end;

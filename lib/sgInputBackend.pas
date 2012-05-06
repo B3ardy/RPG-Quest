@@ -1,7 +1,7 @@
 unit sgInputBackend;
 
 interface
-  uses sgTypes;
+  uses sgTypes, sysutils;
     procedure DoQuit();
     procedure CheckQuit();
     procedure HandleKeydownEvent(kyCode, kyChar : LongInt);
@@ -27,7 +27,7 @@ interface
     function TextEntryWasCancelled: Boolean; 
     function WasKeyDown(kyCode : LongInt) : Boolean;
     function WasKeyJustTyped(kyCode : LongInt) : Boolean;
-    procedure HandleTouchEvent(finger : FingerArray);
+    procedure HandleTouchEvent(const finger : FingerArray; down: Boolean);
     procedure HandleAxisMotionEvent(Accelerometer :  AccelerometerMotion);
     function GetDeltaXAxis():LongInt;
     function GetDeltaYAxis():LongInt;
@@ -282,9 +282,16 @@ implementation
   procedure ProcessMouseEvent(button: Byte);
   begin
     if( WithinRange(length(_ButtonsClicked), button )) then
+    begin
+      {$IFDEF IOS}
+      if (length(_fingers) > 1) and (MouseButton(button) = LeftButton) then
       begin
-        _ButtonsClicked[MouseButton(button)] := true;
+        _ButtonsClicked[RightButton] := true;
+        exit;
       end;
+      {$ENDIF}
+      _ButtonsClicked[MouseButton(button)] := true;
+    end;
   end;
   
   
@@ -440,24 +447,38 @@ implementation
 
   //iOS Procedures
   
-  procedure HandleTouchEvent(finger : FingerArray);
+  function FingerToString(finger: Finger): String;
   begin
-    _justTouched := true;
+    result := 'Finger: ' + IntToStr(finger.id) +
+              ' x: ' + FloatToStr(finger.position.x) +     
+              ' y: ' + FloatToStr(finger.position.y) +    
+              ' dx: ' + FloatToStr(finger.positionDelta.x) + 
+              ' dy: ' + FloatToStr(finger.positionDelta.y) +
+              ' lx: ' + FloatToStr(finger.lastPosition.x) +
+              ' ly: ' + FloatToStr(finger.lastPosition.y) +
+              ' p: ' + FloatToStr(finger.pressure) + 
+              ' lp: ' + FloatToStr(finger.lastPressure) +
+              ' d: ' + BoolToStr(finger.down);
+  end;
+  
+  procedure HandleTouchEvent(const finger : FingerArray; down: Boolean);
+  // var
+  //   i: Integer;
+  begin
+    _justTouched := _justTouched or down;
     _fingers := finger;
-    if(length(_fingers)> 0) then
+    
+    // WriteLn('HandleTouchEvent');
+    // for i := 0 to High(finger) do
+    //   WriteLn('Touch event', down, ' ', FingerToString(finger[i]));
+    
+    if length(_fingers) > 0 then
     begin
       _LastFingerPosition.x := _fingers[0].position.x;
       _LastFingerPosition.y := _fingers[0].position.y;
-      _ButtonsClicked[LeftButton] := true;
-    end;
-
-    if(length(_fingers) > 1) then
-    begin
-
-      _ButtonsClicked[RightButton] := true;
     end;
   end;
-
+  
   function LastFingerPosition():Point2D;
   begin
     result := _LastFingerPosition;
@@ -530,7 +551,6 @@ implementation
 
   function iDeviceTouched():Boolean;
   begin
-
     result := _justTouched;
   end;
 

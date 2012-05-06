@@ -544,6 +544,8 @@ var
   var
     MsgData   : MessagePtr;
   begin
+    if not Assigned(aConnection) then exit;
+
     New(MsgData);  
     MsgData^.data := aMsg;
     MsgData^.next  := nil;
@@ -604,6 +606,8 @@ var
   var
     i : LongInt;
   begin
+    if not Assigned(aConnection) then exit;
+    
     for i := 0 to aConnection^.msgCount do
     begin
       ReadMessage(aConnection);

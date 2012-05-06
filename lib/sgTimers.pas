@@ -199,7 +199,7 @@ begin
   {$IFDEF TRACE}
     TraceEnter('sgTimers', 'ResetTimer');
   {$ENDIF}
-  tmr^.startTicks := TimerDriver.GetTicks();
+  if Assigned(tmr) then tmr^.startTicks := TimerDriver.GetTicks();
   {$IFDEF TRACE}
     TraceEnter('sgTimers', 'ResetTimer');
   {$ENDIF}

@@ -24,7 +24,8 @@ interface
     
 implementation
   uses sgTypes,
-       sgDriverGraphics, sdl13, sgShared, sgDriverImages, sdl13_image, SysUtils, sgSharedUtils, GLDriverUtils; // sdl;
+       sgDriverGraphics, sdl13, sgShared, sgDriverImages, sdl13_image, SysUtils, sgSharedUtils, 
+       GLDriverUtils, sgSDLUtils; // sdl;
   const
     // PixelFormat
     GL_COLOR_INDEX     = $1900;
@@ -41,11 +42,13 @@ implementation
     GL_BGR             = $80E0;
     GL_BGRA            = $80E1;
 
+  // Setup a created bitmap, clearing surface and setting alpha blending options
   procedure InitBitmapColorsProcedure(bmp : Bitmap);
   begin   
     exit;
   end;
-      
+  
+  // Returns true if the bitmap's surface exists
   function SurfaceExistsProcedure(bmp : Bitmap) : Boolean;
   begin
     result := false;
@@ -69,9 +72,10 @@ implementation
   
   procedure SetNonAlphaPixelsProcedure(bmp : Bitmap); 
   begin   
-    exit;
+    ;
   end;
 
+  // Convert a surface to RGBA
   procedure ToRGBA(var srcImg : PSDL_Surface);
   var
     temp: PSDL_Surface;
@@ -101,6 +105,7 @@ implementation
     end;
   end;
 
+  // Gets next largest power of 2 (for texture creation)
   function PowerOfTwo(dimension : LongInt) : LongInt;
   begin
     result := 1;
@@ -118,15 +123,17 @@ implementation
   //   lNoOfColors : GLint;
   begin
     result := nil;
-    if (Assigned(lLoadedImg) ) then
+
+    if Assigned(lLoadedImg) then
     begin
       
       // check not 0 w/h    
-      if ( lLoadedImg^.w  = 0 ) or ( lLoadedImg^.h = 0 ) then
+      if ( lLoadedImg^.w  <= 0 ) or ( lLoadedImg^.h <= 0 ) then
       begin
-        WriteLn('BadStuff');
+        RaiseWarning('Loaded bitmap with 0 width and/or height.');
         exit;
       end;
+
       New(result);
 
 
@@ -178,68 +185,10 @@ implementation
       {$ELSE}
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, lLoadedImg^.w, lLoadedImg^.h, 0,
                           GL_RGBA, GL_UNSIGNED_BYTE, lLoadedImg^.pixels );
-      glBindTexture( GL_TEXTURE_2D, 0 );
+        glBindTexture( GL_TEXTURE_2D, 0 );
       {$ENDIF}
     end;
   end; 
-  
-  procedure PutSurfacePixel(surf : PSDL_Surface; clr: Color; x, y: Longint);
-  var
-      p:    ^Color;
-      bpp:  Longint;
-  begin
-      if not Assigned(surf) then begin RaiseWarning('OpenGL Images Driver - PutPixelProcedure recieved empty Surface'); exit; end;
-        
-      bpp := surf^.format^.BytesPerPixel;
-      // Here p is the address to the pixel we want to set
-      p := surf^.pixels + y * surf^.pitch + x * bpp;
-      
-      if bpp <> 4 then RaiseException('PutPixel only supported on 32bit images.');
-      p^ := clr;
-  end; 
-
-  function GetSurfacePixel(surface: PSDL_Surface; x, y: Longint) :Color;
-  var
-    pixel, pixels: PUint32;
-    offset: Longword;
-  {$IFDEF FPC}
-    pixelAddress: PUint32;
-  {$ELSE}
-    pixelAddress: Longword;
-  {$ENDIF}
-  begin    
-    //Convert the pixels to 32 bit
-    pixels := surface^.pixels;
-
-    //Get the requested pixel
-    offset := (( y * surface^.w ) + x) * surface^.format^.BytesPerPixel;
-    {$IFDEF FPC}
-      pixelAddress := pixels + (offset div 4);
-      pixel := PUint32(pixelAddress);
-    {$ELSE}
-      pixelAddress := Longword(pixels) + offset;
-      pixel := Ptr(pixelAddress);
-    {$ENDIF}
-
-    {$IF SDL_BYTEORDER = SDL_BIG_ENDIAN }
-    case surface^.format^.BytesPerPixel of
-      1: result := pixel^ and $000000ff;
-      2: result := pixel^ and $0000ffff;
-      3: result := pixel^ and $00ffffff;
-      4: result := pixel^;
-    else
-      RaiseException('Unsuported bit format...');
-      exit;
-    end;
-    {$ELSE}
-    case surface^.format^.BytesPerPixel of
-      1: result := pixel^ and $ff000000;
-      2: result := pixel^ and $ffff0000;
-      3: result := pixel^ and $ffffff00;
-      4: result := pixel^;
-    end;
-    {$IFEND}
-  end;
 
   procedure ReplaceColors(surf : PSDL_Surface; originalColor, newColor : Color; width, height : LongInt);
   var
@@ -281,6 +230,10 @@ implementation
     
     //Load the image
     loadedImage := IMG_Load(PChar(filename));
+    if not CheckAssigned('OpenGL ImagesDriver - Error loading image: ' + filename + ': ' + SDL_GetError(), loadedImage) then
+    begin      
+      exit;
+    end;
 
     optimizeSizedImage := SDL_CreateRGBSurface(0,PowerOfTwo(loadedImage^.w),
                                           PowerOfTwo(loadedImage^.h),
@@ -290,6 +243,7 @@ implementation
                                           $00FF0000, //loadedImage^.format^.Bmask,
                                           $FF000000 //loadedImage^.format^.Amask
                                            );
+    
     //optimizeSizedImage := IMG_Load(PChar(filename));
     dRect.x := 0;               dRect.y := 0;
     dRect.w := loadedImage^.w;  dRect.h := loadedImage^.h;
@@ -301,7 +255,10 @@ implementation
     //SDL_BlitSurface(loadedImage, nil, optimizeSizedImage, @dRect);
     SDL_FreeSurface(loadedImage);
 
-    CheckAssigned('OpenGL ImagesDriver - Error loading image: ' + filename + ': ' + SDL_GetError(), loadedImage);
+    if not CheckAssigned('OpenGL ImagesDriver - Error loading image: ' + filename + ': ' + SDL_GetError(), loadedImage) then
+    begin      
+      exit;
+    end;
 
     // Image loaded, so create SwinGame bitmap    
     new(result);
@@ -322,7 +279,7 @@ implementation
 
       result^.surface := CreateGLTextureFromSurface(optimizeSizedImage);
     end else begin    
-      SetNonAlphaPixelsProcedure(result);
+      SetNonAlphaPixels(result, optimizeSizedImage);
     end;
 
     // Free the loaded image; if its not the result's surface

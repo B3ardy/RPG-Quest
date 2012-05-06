@@ -2288,7 +2288,12 @@ implementation
     {$IFDEF TRACE}
       TraceEnter('sgGeometry', 'CalculateAngle(s1, s2: Sprite): Single', '');
     {$ENDIF}
-    
+    if (not Assigned(s1)) or (not Assigned(s2)) then 
+    begin
+      result := 0;
+      exit;  
+    end;
+
     cx1 := s1^.position.x + SpriteWidth(s1) / 2;
     cy1 := s1^.position.y + SpriteHeight(s1) / 2;
     cx2 := s2^.position.x + SpriteWidth(s2) / 2;

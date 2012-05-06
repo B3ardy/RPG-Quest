@@ -954,7 +954,8 @@ begin
   
   ImagesDriver.CreateBitmap(result, width, height);
   
-  if not ImagesDriver.SurfaceExists(result) then//if result^.surface = nil then
+
+  if (not Assigned(result)) or (not ImagesDriver.SurfaceExists(result)) then
   begin
     Dispose(result);
     RaiseWarning('Failed to create a bitmap: ' + Driver.GetError());
@@ -1064,6 +1065,14 @@ begin
   end;  
   
   result := ImagesDriver.DoLoadBitmap(filename, transparent, transparentColor);
+
+  // if it failed to load then exit
+  if not assigned(result) then 
+  begin
+    RaiseWarning('Error loading image ' + filename);
+    exit;
+  end;
+
   result^.cellW     := result^.width;
   result^.cellH     := result^.height;
   result^.cellCols  := 1;

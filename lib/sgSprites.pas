@@ -1824,7 +1824,7 @@ implementation
     tmp : TObject;
   begin
     tmp := _Sprites.values[name];
-    if assigned(tmp) then
+    if Assigned(tmp) then
       result := Sprite(tResourceContainer(tmp).Resource)
     else 
       result := nil;
@@ -1839,7 +1839,7 @@ implementation
     {$ENDIF}
 
     sprt := SpriteNamed(name);
-    if (assigned(sprt)) then
+    if (Assigned(sprt)) then
     begin
       FreeSprite(sprt);
     end;
@@ -2003,8 +2003,8 @@ implementation
   var
 	idx: Integer;
   begin
-	if not assigned(s) then exit;
-	if not assigned(s^.animationScript) then exit;
+	if not Assigned(s) then exit;
+	if not Assigned(s^.animationScript) then exit;
 	
 	idx := AnimationIndex(s^.animationScript, named);
 	if (idx < 0) or (idx > High(s^.animationScript^.animations)) then
@@ -2023,15 +2023,15 @@ implementation
   
   procedure SpriteStartAnimation(s: Sprite; idx: Longint; withSound: Boolean);
   begin
-    if not assigned(s) then exit;
-    if not assigned(s^.animationScript) then exit;
+    if not Assigned(s) then exit;
+    if not Assigned(s^.animationScript) then exit;
 	if (idx < 0) or (idx > High(s^.animationScript^.animations)) then
     begin
 		RaiseWarning('Unable to create animation no. ' + IntToStr(idx) + ' for sprite ' + s^.name + ' from script ' + s^.animationScript^.name);
 		exit;
 	end;
     
-    if assigned(s^.animationInfo) then
+    if Assigned(s^.animationInfo) then
       AssignAnimation(s^.animationInfo, idx, s^.animationScript, withSound)
     else
       s^.animationInfo := CreateAnimation(idx, s^.animationScript, withSound);
@@ -2055,7 +2055,7 @@ implementation
   
   procedure UpdateSpriteAnimation(s: Sprite; pct: Single; withSound: Boolean); overload;
   begin
-    if not assigned(s) then exit;
+    if not Assigned(s) then exit;
     
     UpdateAnimation(s^.animationInfo, pct, withSound);
     // WriteLn('Move ', PointToString(AnimationCurrentVector(s^.animationInfo)), ' ', pct);
@@ -2173,7 +2173,7 @@ implementation
   begin
     result := false;
     
-    if not assigned(s) then exit;
+    if not Assigned(s) then exit;
     
     wx := ToWorldX(x);
     wy := ToWorldY(y);
@@ -2197,16 +2197,32 @@ implementation
 
   function SpriteVelocity(s: Sprite): Vector;
   begin
+    if not Assigned(s) then 
+    begin 
+      result := VectorTo(0,0);
+      exit;
+    end;
+
     result := s^.velocity;
   end;
 
   procedure SpriteSetVelocity(s: Sprite; const value: Vector);
   begin
+    if not Assigned(s) then 
+    begin 
+      exit;
+    end;
+
     s^.velocity := value;
   end;
   
   procedure SpriteAddToVelocity(s: Sprite; const value: Vector);
   begin
+    if not Assigned(s) then 
+    begin 
+      exit;
+    end;
+
     s^.velocity := AddVectors(s^.velocity, value);
   end;
   
@@ -2228,58 +2244,80 @@ implementation
   
   procedure SpriteSetX(s: Sprite; value: Single);
   begin
+    if not Assigned(s) then 
+    begin 
+      exit;
+    end;
+
     s^.position.x := value;
   end;
     
   function SpriteX(s: Sprite): Single;
   begin
+    if not Assigned(s) then 
+    begin 
+      result := 0;
+      exit;
+    end;
+
     result := s^.position.x;
   end;
   
   procedure SpriteSetY(s: Sprite; value: Single);
   begin
+    if not Assigned(s) then 
+    begin 
+      exit;
+    end;
+
     s^.position.y := value;
   end;
     
   function SpriteY(s: Sprite): Single;
   begin
+    if not Assigned(s) then 
+    begin 
+      result := 0;
+      exit;
+    end;
+
     result := s^.position.y;
   end;
   
   function SpriteLayer(s: Sprite; name: String): Bitmap;
   begin
-    if not assigned(s) then result := nil
+    if not Assigned(s) then result := nil
     else result := SpriteLayer(s, IndexOf(s^.layerIds, name));
   end;
   
   function SpriteLayer(s: Sprite; idx: Longint): Bitmap;
   begin
-    if not assigned(s) then result := nil
+    if not Assigned(s) then result := nil
     else if (idx < 0) or (idx > High(s^.layers)) then begin result := nil; RaiseException('Sprite layer index out of range - ' + IntToStr(idx)); exit; end
     else result := s^.layers[idx];
   end;
   
   function SpriteLayerIndex(s: Sprite; name: String): Longint;
   begin
-    if not assigned(s) then result := -1
+    if not Assigned(s) then result := -1
     else result := IndexOf(s^.layerIds, name);
   end;
   
   function SpriteLayerName(s: Sprite; idx: Longint): String;
   begin
-    if not assigned(s) then result := ''
+    if not Assigned(s) then result := ''
     else result := NameAt(s^.layerIds, idx);
   end;
   
   function SpriteShowLayer(s: Sprite; name: String): Longint;
   begin
-    if not assigned(s) then result := -1
+    if not Assigned(s) then result := -1
     else result := SpriteShowLayer(s, IndexOf(s^.layerIds, name));
   end;
   
   function SpriteShowLayer(s: Sprite; id: Longint): Longint;
   begin
-    if not assigned(s) then result := -1
+    if not Assigned(s) then result := -1
     else
     begin
       if (id < 0) or (id > Length(s^.layers)) then begin result := -1; RaiseWarning('Cannot show layer ' + IntToStr(id) + ' of sprite.'); exit; end;
@@ -2299,7 +2337,7 @@ implementation
   
   procedure SpriteHideLayer(s: Sprite; name: String);
   begin
-    if not assigned(s) then exit
+    if not Assigned(s) then exit
     else SpriteHideLayer(s, IndexOf(s^.layerIds, name));
   end;
   
@@ -2307,6 +2345,8 @@ implementation
   var
     i, idx: Longint;
   begin
+    if not Assigned(s) then exit;
+
     idx := SpriteVisibleIndexOfLayer(s, id);
     if idx < 0 then exit; // The layer is not shown
     
@@ -2323,7 +2363,7 @@ implementation
   
   procedure SpriteToggleLayerVisible(s: Sprite; name: String); overload;
   begin
-    if not assigned(s) then exit
+    if not Assigned(s) then exit
     else SpriteToggleLayerVisible(s, IndexOf(s^.layerIds, name));
   end;
   
@@ -2337,25 +2377,25 @@ implementation
   
   function SpriteLayerCount(s: Sprite): Longint;
   begin
-    if not assigned(s) then result := 0
+    if not Assigned(s) then result := 0
     else result := Length(s^.layers);
   end;
   
   function SpriteVisibleLayerCount(s: Sprite): Longint;
   begin
-    if not assigned(s) then result := 0
+    if not Assigned(s) then result := 0
     else result := Length(s^.visibleLayers);
   end;
   
   function SpriteVisibleLayerIds(s: Sprite) : LongintArray;
   begin
-    if not assigned(s) then result := nil
+    if not Assigned(s) then result := nil
     else result := s^.visibleLayers;
   end;
   
   function SpriteLayers(s: Sprite): BitmapArray;
   begin
-    if not assigned(s) then result := nil
+    if not Assigned(s) then result := nil
     else result := s^.layers;
   end;
   
@@ -2381,32 +2421,32 @@ implementation
   
   function SpriteLayerOffset(s: Sprite; name: String): Point2D;
   begin
-    if not assigned(s) then result := PointAt(0,0)
+    if not Assigned(s) then result := PointAt(0,0)
     else result := SpriteLayerOffset(s, IndexOf(s^.layerIds, name));
   end;
   
   function SpriteLayerOffset(s: Sprite; idx: Longint): Point2D;
   begin
-    if not assigned(s) then result := PointAt(0,0)
+    if not Assigned(s) then result := PointAt(0,0)
     else if (idx < 0) or (idx >= Length(s^.layerOffsets)) then begin RaiseException('Error fetching layer offset out of range.'); result := PointAt(0,0); exit; end
     else result := s^.layerOffsets[idx];
   end;
   
   procedure SpriteSetLayerOffset(s: Sprite; name: String; const value: Point2D);
   begin
-    if assigned(s) then
+    if Assigned(s) then
       SpriteSetLayerOffset(s, IndexOf(s^.layerIds, name), value);
   end;
   
   procedure SpriteSetLayerOffset(s: Sprite; idx: Longint; const value: Point2D);
   begin
-    if assigned(s) then
+    if Assigned(s) then
       s^.layerOffsets[idx] := value;
   end;
   
   function SpriteVisibleIndexOfLayer(s: Sprite; name: String): Longint;
   begin
-    if not assigned(s) then result := -1
+    if not Assigned(s) then result := -1
     else result := SpriteVisibleIndexOfLayer(s, IndexOf(s^.layerIds, name));
   end;
   
@@ -2415,7 +2455,7 @@ implementation
     i: Longint;
   begin
     result := -1;
-    if not assigned(s) then exit
+    if not Assigned(s) then exit
     else
     begin
       for i := 0 to High(s^.visibleLayers) do
@@ -2432,7 +2472,7 @@ implementation
   function SpriteVisibleLayer(s: Sprite; idx: Longint): Longint;
   begin
     result := -1;
-    if not assigned(s) then exit
+    if not Assigned(s) then exit
     else result := s^.visibleLayers[idx];
   end;
   
@@ -2449,7 +2489,7 @@ implementation
   var
     i: Longint;
   begin
-    if not assigned(s) then exit;
+    if not Assigned(s) then exit;
     //Check not last or beyond in array
     if (visibleLayer < 0) or (visibleLayer >= Length(s^.visibleLayers) - 1) then exit;
     
@@ -2464,7 +2504,7 @@ implementation
   
   procedure SpriteSendLayerBackward(s: Sprite; visibleLayer: Longint);
   begin
-    if not assigned(s) then exit;
+    if not Assigned(s) then exit;
     //Check not last or beyond in array
     if (visibleLayer < 0) or (visibleLayer >= Length(s^.visibleLayers) - 1) then exit;
     
@@ -2474,7 +2514,7 @@ implementation
   
   procedure SpriteBringLayerForward(s: Sprite; visibleLayer: Longint);
   begin
-    if not assigned(s) then exit;
+    if not Assigned(s) then exit;
     //Check not first or lower
     if (visibleLayer < 1) or (visibleLayer >= Length(s^.visibleLayers)) then exit;
     
@@ -2486,7 +2526,7 @@ implementation
   var
     i: Longint;
   begin
-    if not assigned(s) then exit;
+    if not Assigned(s) then exit;
     //Check not last or beyond in array
     if (visibleLayer < 0) or (visibleLayer >= Length(s^.visibleLayers) - 1) then exit;
     
@@ -2501,7 +2541,7 @@ implementation
   
   function SpriteLayerRectangle(s: Sprite; name: String): Rectangle; overload;
   begin
-    if not assigned(s) then result := RectangleFrom(0,0,0,0)
+    if not Assigned(s) then result := RectangleFrom(0,0,0,0)
     else result := SpriteLayerRectangle(s, IndexOf(s^.layerIds, name));
   end;
   
@@ -2511,7 +2551,7 @@ implementation
       TraceEnter('sgSprites', 'SpriteLayerRectangle(s: Sprite; idx: Longint): Rectangle', '');
     {$ENDIF}
     
-    if not assigned(s) then result := RectangleFrom(0,0,0,0)
+    if not Assigned(s) then result := RectangleFrom(0,0,0,0)
     else result := BitmapCellRectangle(s^.position.x + s^.layerOffsets[idx].x, s^.position.y + s^.layerOffsets[idx].y, s^.layers[idx]);
       
     {$IFDEF TRACE}
@@ -2525,7 +2565,7 @@ implementation
       TraceEnter('sgSprites', 'SpriteCollisionRectangle(s: Sprite): Rectangle', '');
     {$ENDIF}
     
-    if not assigned(s) then result := RectangleFrom(0,0,0,0)
+    if not Assigned(s) then result := RectangleFrom(0,0,0,0)
     else result := BitmapCellRectangle(s^.position.x, s^.position.y, s^.collisionBitmap);
     
     {$IFDEF TRACE}
@@ -2540,7 +2580,7 @@ implementation
   
   function SpriteLayerCircle(s: Sprite; name: String): Circle; overload;
   begin
-    if not assigned(s) then result := CircleAt(0,0,0)
+    if not Assigned(s) then result := CircleAt(0,0,0)
     else result := SpriteLayerCircle(s, IndexOf(s^.layerIds, name));
   end;
   
@@ -2550,7 +2590,7 @@ implementation
       TraceEnter('sgSprites', 'SpriteLayerCircle(s: Sprite): Circle', '');
     {$ENDIF}
     
-    if not assigned(s) then result := CircleAt(0, 0, 0)
+    if not Assigned(s) then result := CircleAt(0, 0, 0)
     else if (idx < 0) or (idx > High(s^.layers)) then begin RaiseException('Layer out of range in SpriteLayerCircle.'); result := CircleAt(0,0,0); exit; end
     else
     begin
@@ -2568,7 +2608,7 @@ implementation
       TraceEnter('sgSprites', 'SpriteLayerCircle(s: Sprite): Circle', '');
     {$ENDIF}
     
-    if (not assigned(s)) or (not assigned(s^.collisionBitmap)) then result := CircleAt(0, 0, 0)
+    if (not Assigned(s)) or (not Assigned(s^.collisionBitmap)) then result := CircleAt(0, 0, 0)
     else result := BitmapCellCircle(s^.collisionBitmap, CenterPoint(s));
     
     {$IFDEF TRACE}
@@ -2584,12 +2624,13 @@ implementation
   
   function SpritePosition(s: Sprite): Point2D;
   begin
-    result := s^.position;
+    if not Assigned(s) then result := PointAt(0,0)
+    else result := s^.position;
   end;
   
   procedure SpriteSetPosition(s: Sprite; const value: Point2D);
   begin
-    s^.position := value;
+    if Assigned(s) then s^.position := value;
   end;
   
 //---------------------------------------------------------------------------
@@ -2598,22 +2639,24 @@ implementation
   
   procedure SpriteSetDX(s: Sprite; value: Single);
   begin
-    s^.velocity.x := value;
+    if Assigned(s) then s^.velocity.x := value;
   end;
   
   function SpriteDX(s: Sprite): Single;
   begin
-    result := s^.velocity.x;
+    if not Assigned(s) then result := 0
+    else result := s^.velocity.x;
   end;
   
   procedure SpriteSetDY(s: Sprite; value: Single);
   begin
-    s^.velocity.y := value;
+    if Assigned(s) then s^.velocity.y := value;
   end;
   
   function SpriteDY(s: Sprite): Single;
   begin
-    result := s^.velocity.y;
+    if not Assigned(s) then result := 0
+    else result := s^.velocity.y;
   end;
   
 //---------------------------------------------------------------------------
@@ -2622,22 +2665,24 @@ implementation
   
   function SpriteSpeed(s: Sprite): Single;
   begin
-    result := VectorMagnitude(s^.velocity);
+    if not Assigned(s) then result := 0
+    else result := VectorMagnitude(s^.velocity);
   end;
   
   procedure SpriteSetSpeed(s: Sprite; value: Single);
   begin
-    s^.velocity := VectorMultiply(UnitVector(s^.velocity), value);
+    if Assigned(s) then s^.velocity := VectorMultiply(UnitVector(s^.velocity), value);
   end;
   
   function SpriteHeading(s: Sprite): Single;
   begin
-    result := VectorAngle(s^.velocity);
+    if not Assigned(s) then result := 0
+    else result := VectorAngle(s^.velocity);
   end;
   
   procedure SpriteSetHeading(s: Sprite; value: Single);
   begin
-    s^.velocity := VectorFromAngle(value, VectorMagnitude(s^.velocity));
+    if Assigned(s) then s^.velocity := VectorFromAngle(value, VectorMagnitude(s^.velocity));
   end;
   
 //---------------------------------------------------------------------------
@@ -2646,13 +2691,13 @@ implementation
   
   function SpriteCurrentCell(s: Sprite): Longint;
   begin
-    if not assigned(s) then result := -1
+    if not Assigned(s) then result := -1
     else result := AnimationCurrentCell(s^.animationInfo);
   end;
   
   function SpriteAnimationHasEnded(s: Sprite): Boolean;
   begin
-    if not assigned(s) then result := false
+    if not Assigned(s) then result := false
     else result := AnimationEnded(s^.animationInfo);
   end;
   
@@ -2675,7 +2720,7 @@ implementation
   
   function SpriteLayerWidth(s: Sprite; name: String): Longint; overload;
   begin
-    if not assigned(s) then result := 0
+    if not Assigned(s) then result := 0
     else result := SpriteLayerWidth(s, IndexOf(s^.layerIds, name));
   end;
   
@@ -2703,12 +2748,13 @@ implementation
   
   function SpriteMass(s: Sprite): Single;
   begin
-    result := s^.values[MASS_IDX];
+    if not Assigned(s) then result := 0
+    else result := s^.values[MASS_IDX];
   end;
   
   procedure SpriteSetMass(s: Sprite; value: Single);
   begin
-    s^.values[MASS_IDX] := value;
+    if Assigned(s) then s^.values[MASS_IDX] := value;
   end;
   
 //---------------------------------------------------------------------------
@@ -2717,13 +2763,17 @@ implementation
   
   function SpriteRotation(s: Sprite): Single;
   begin
-    result := s^.values[ROTATION_IDX];
+    if not Assigned(s) then result := 0
+    else result := s^.values[ROTATION_IDX];
   end;
   
   procedure SpriteSetRotation(s: Sprite; value: Single);
   begin
-    s^.values[ROTATION_IDX] := value;
-    _UpdateSpriteImageCache(s);
+    if Assigned(s) then 
+    begin
+      s^.values[ROTATION_IDX] := value;
+      _UpdateSpriteImageCache(s);
+    end;
   end;
   
 //---------------------------------------------------------------------------
@@ -2732,13 +2782,17 @@ implementation
   
   function SpriteScale(s: Sprite): Single;
   begin
-    result := s^.values[SCALE_IDX];
+    if not Assigned(s) then result := 0
+    else result := s^.values[SCALE_IDX];
   end;
   
   procedure SpriteSetScale(s: Sprite; value: Single);
   begin
-    s^.values[SCALE_IDX] := value;
-    _UpdateSpriteImageCache(s);
+    if Assigned(s) then 
+    begin
+      s^.values[SCALE_IDX] := value;
+      _UpdateSpriteImageCache(s);
+    end;
   end;
   
 //---------------------------------------------------------------------------
@@ -2750,7 +2804,13 @@ implementation
     {$IFDEF TRACE}
       TraceEnter('sgSprites', 'CenterPoint(s: Sprite): Point2D', '');
     {$ENDIF}
-    
+
+    if not Assigned(s) then
+    begin
+      result := PointAt(0,0);
+      exit;
+    end;
+
     result.x := s^.position.x + SpriteWidth(s) / 2;
     result.y := s^.position.y + SpriteHeight(s) / 2;
     
@@ -2765,24 +2825,24 @@ implementation
   
   function SpriteCollisionKind(s: Sprite): CollisionTestKind;
   begin
-    if not assigned(s) then result := AABBCollisions
+    if not Assigned(s) then result := AABBCollisions
     else result := s^.collisionKind;
   end;
   
   procedure SpriteSetCollisionKind(s: Sprite; value: CollisionTestKind);
   begin
-    if assigned(s) then s^.collisionKind := value;
+    if Assigned(s) then s^.collisionKind := value;
   end;
   
   function SpriteCollisionBitmap(s: Sprite): Bitmap;
   begin
-    if not assigned(s) then result := nil
+    if not Assigned(s) then result := nil
     else result := s^.collisionBitmap;
   end;
     
   procedure SpriteSetCollisionBitmap(s: Sprite; bmp: Bitmap);
   begin
-    if assigned(s) then s^.collisionBitmap := bmp;
+    if Assigned(s) then s^.collisionBitmap := bmp;
   end;
   
 //---------------------------------------------------------------------------
@@ -2830,7 +2890,7 @@ implementation
   var
     idx: Longint;
   begin
-    if not assigned(s) then exit;
+    if not Assigned(s) then exit;
     if HasName(s^.valueIds, name) then exit;
     
     idx := AddName(s^.valueIds, name);
@@ -2847,7 +2907,7 @@ implementation
   
   procedure SpriteSetValue(s: Sprite; idx: Longint; val: Single); overload;
   begin
-    if not assigned(s) then exit;
+    if not Assigned(s) then exit;
     if (idx < 0) or (idx > High(s^.values)) then exit;
     
     s^.values[idx] := val;
@@ -2856,7 +2916,7 @@ implementation
   function SpriteName(sprt: Sprite): String;
   begin
     result := '';
-    if not assigned(sprt) then exit;
+    if not Assigned(sprt) then exit;
     result := sprt^.name;
   end;
 

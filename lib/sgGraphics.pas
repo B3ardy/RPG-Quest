@@ -2171,8 +2171,11 @@ implementation
 
   procedure SetClip(bmp: Bitmap; const r: Rectangle); overload;
   begin
-    SetLength(bmp^.clipStack, 0);
-    PushClip(bmp, r);
+    if assigned(bmp) then
+    begin
+      SetLength(bmp^.clipStack, 0);
+      PushClip(bmp, r);
+    end;
   end;
 
   procedure SetClip(const r: Rectangle); overload;
@@ -2187,6 +2190,8 @@ implementation
   
   procedure PopClip(bmp: Bitmap); overload;
   begin
+    if not Assigned(bmp) then exit;
+
     Setlength(bmp^.clipStack, Length(bmp^.clipStack)-1);
     if Length(bmp^.clipStack) > 0 then
       DoSetClip(bmp, bmp^.clipStack[High(bmp^.clipStack)])
@@ -2196,6 +2201,8 @@ implementation
 
   function CurrentClip(bmp: Bitmap): Rectangle; overload;
   begin
+    if not Assigned(bmp) then exit;
+    
     if Length(bmp^.clipStack) <> 0 then result:= bmp^.clipStack[high(bmp^.clipStack)]
     else
       result:=BitmapRectangle(0, 0, bmp);

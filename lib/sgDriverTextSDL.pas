@@ -19,7 +19,7 @@ interface
 		
 //=============================================================================		
 implementation
-	uses sgDriverText, sdl_ttf, sgTypes, sgShared, sdl, sgGraphics, sgImages, sdl_gfx, sgDriverGraphics, sgDriverGraphicsSDL;
+	uses sgDriverText, sdl_ttf, sgTypes, sgShared, sdl, sgGraphics, sgImages, sdl_gfx, sgDriverGraphics, sgDriverGraphicsSDL, sgSharedUtils;
 	
 	const EOL = LineEnding; // from sgShared
 
@@ -28,39 +28,37 @@ implementation
 	begin
 		New(result);
 	    if result = nil then
-			begin
-				RaiseException('LoadFont to allocate space.');
-	        	exit;
-	      	end;
+		begin
+			RaiseException('LoadFont to allocate space.');
+	    	exit;
+	  	end;
 
-	      result^.fptr := TTF_OpenFont(PChar(filename), size);
-	      if result^.fptr = nil then
-	      begin
-	        Dispose(result);
-	        RaiseException('LoadFont failed: ' + TTF_GetError());
-	        exit;
-	      end;
+		result^.fptr := TTF_OpenFont(PChar(filename), size);
 
-	      result^.name := fontName;
-	  
+		if result^.fptr = nil then
+		begin
+			Dispose(result);
+			result := nil;
+			RaiseWarning('LoadFont failed: ' + TTF_GetError());
+			exit;
+		end;
+
+		result^.name := fontName;	  
 	end;
 	
-
-
-  
 	function ToSDLColor(color: Longword): TSDL_Color;
-  begin
-    if (screen^.surface = nil) or (PSDL_Surface(screen^.surface)^.format = nil) then
-    begin
-      RaiseWarning('Estimating color as screen is not created.');
-      result.r := color and $00FF0000 shr 16;
-      result.g := color and $0000FF00 shr 8;
-      result.b := color and $000000FF;
-      exit;
-    end;
+  	begin
+	    if (screen^.surface = nil) or (PSDL_Surface(screen^.surface)^.format = nil) then
+	    begin
+			RaiseWarning('Estimating color as screen is not created.');
+			result.r := color and $00FF0000 shr 16;
+			result.g := color and $0000FF00 shr 8;
+			result.b := color and $000000FF;
+			exit;
+	    end;
 
-    SDL_GetRGB(color, PSDL_Surface(screen^.surface)^.format, @result.r, @result.g, @result.b);
-  end;
+	    SDL_GetRGB(color, PSDL_Surface(screen^.surface)^.format, @result.r, @result.g, @result.b);
+  	end;
 	
 	procedure CloseFontProcedure(fontToClose : font);
 	begin
@@ -86,6 +84,8 @@ implementation
 	    bgTransparent: Boolean;
 	begin
 	  	if Length(str) = 0 then exit;
+	  	if not CheckAssigned('No font supplied', font) then exit;
+	  	if not CheckAssigned('No bitmap to draw text onto.', dest) then exit;
   		if dest^.surface = nil then begin RaiseWarning('Error Printing Strings: There was no surface to draw onto.'); exit; end;
     
 	  	colorFG := ToSDLColor(clrFg);

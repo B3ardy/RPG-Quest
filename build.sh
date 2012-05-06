@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Step 1: Detect the operating system
@@ -21,7 +21,12 @@ APP_PATH=`cd "$APP_PATH"; pwd`
 cd "$APP_PATH"
 
 GAME_NAME=${APP_PATH##*/}
-ICON=SwinGame
+if [ "$OS" = "$MAC" ]; then
+    ICON="SwinGame.icns"
+else
+    ICON="SwinGame"
+fi
+
 FULL_APP_PATH=$APP_PATH
 APP_PATH="."
 
@@ -68,7 +73,7 @@ Usage()
 
 RELEASE=""
 
-while getopts chdi:g:b: o
+while getopts chri:g:b: o
 do
     case "$o" in
     c)  CLEAN="Y" ;;
@@ -237,7 +242,6 @@ doMacPackage()
     cp -R -p "${LIB_DIR}/"*.framework "${GAMEAPP_PATH}/Contents/Frameworks/"
     
     mv "${FULL_OUT_DIR}/${GAME_NAME}" "${GAMEAPP_PATH}/Contents/MacOS/" 
-    ICON="${GAMEAPP_PATH}/Contents/Resources/SwinGame.icns"
     echo "<?xml version='1.0' encoding='UTF-8'?>\
     <!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\
     <plist version=\"1.0\">\
@@ -443,7 +447,7 @@ then
             
             doLipo "i386" "ppc"
         else
-            if [[ $HAS_LION = true ]]; then
+            if [ $HAS_LION = true ]; then
                 PAS_FLAGS="$PAS_FLAGS -k-macosx_version_min -k10.7 -k-no_pie"
             fi
             doBasicMacCompile

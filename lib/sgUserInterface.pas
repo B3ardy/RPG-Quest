@@ -1753,7 +1753,8 @@ end;
 
 function ActiveTextBoxParent() : Panel;
 begin
-  result := GUIC.activeTextBox^.parent;
+  if not Assigned(GUIC.activeTextBox) then result := nil
+  else result := GUIC.activeTextBox^.parent;
 end;
 
 function RegionRectangleOnscreen(r: Region): Rectangle;
@@ -1904,6 +1905,8 @@ end;
 
 procedure DrawTextbox(forRegion: Region; const area: Rectangle);
 begin
+  if not Assigned(forRegion) then exit;
+
   if forRegion^.parent^.DrawAsVectors or GUIC.VectorDrawing then DrawRectangleOnScreen(VectorForecolorToDraw(forRegion), area);
   
   if GUIC.activeTextBox <> forRegion then
@@ -2190,7 +2193,8 @@ var
   currentReg: Region;
 begin
   current := p;
-  
+  if not assigned(current) then exit;
+
   if current^.active then
   begin
     FillRectangleOnScreen(GUIC.backgroundClr, current^.area);

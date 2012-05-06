@@ -65,6 +65,8 @@ implementation
   begin
     result := StrPas(MIX_GetError()); // Converts from PChar to Pascal String
   end;
+
+
 //=============================================================================
 //              Sound Effects
 //=============================================================================
@@ -75,18 +77,18 @@ implementation
   function LoadSoundEffectProcedure(filename, name: String) : SoundEffect;
   begin
     New(result);        
-        result^.effect := Mix_LoadWAV(PChar(filename));
+    result^.effect := Mix_LoadWAV(PChar(filename));
     
     if result^.effect = nil then
-        begin
-            Dispose(result);
-            result := nil;
-            RaiseWarning('Error loading sound effect: ' + AudioDriver.GetError());
-            exit;
-        end;
-  
-        result^.filename := filename;
-        result^.name := name;
+    begin
+      Dispose(result);
+      result := nil;
+      RaiseWarning('Error loading sound effect: ' + AudioDriver.GetError());
+      exit;
+    end;
+
+    result^.filename := filename;
+    result^.name := name;
   end;
   
   procedure StopSoundEffectProcedure(effect : SoundEffect);
@@ -159,9 +161,10 @@ implementation
     end;
   end;
   
-  //=============================================================================
-  //              Music
-  //=============================================================================
+
+//=============================================================================
+//              Music
+//=============================================================================
   
   // MusicPlaying returns true if music is currently being played
   function MusicPlayingProcedure() : Boolean;
@@ -190,18 +193,18 @@ implementation
   function LoadMusicProcedure(filename, name: String) : Music;
   begin
     New(result);        
-        result^.music := Mix_LoadMUS(PChar(filename));
+    result^.music := Mix_LoadMUS(PChar(filename));
     
     if result^.music = nil then
-        begin
-            Dispose(result);
-            result := nil;
-            RaiseWarning('Error loading sound effect: ' + AudioDriver.GetError());
-            exit;
-        end;
-  
-        result^.filename := filename;
-        result^.name := name;
+    begin
+      Dispose(result);
+      result := nil;
+      RaiseWarning('Error loading sound effect: ' + AudioDriver.GetError());
+      exit;
+    end;
+
+    result^.filename := filename;
+    result^.name := name;
   end;
   
   // FreeSoundEffectProcedure frees the memory of the sound effect
@@ -210,7 +213,6 @@ implementation
   begin
     Mix_FreeMusic(music^.music);
     Dispose(music);
-    music := nil;
   end;
   
   procedure SetMusicVolumeProcedure(newVolume : Single);
@@ -254,6 +256,7 @@ implementation
     result := Mix_FadeOutMusic(ms) > 0; // FadeOutMusic returns 1 on success 0 on fail
   end;
   
+
 //============================================================================= 
 // Loads the SDL 1.2 procedures and functions into the audio driver
 //=============================================================================
