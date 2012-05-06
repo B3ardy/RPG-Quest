@@ -1,7 +1,7 @@
 program RPGQuest;
 uses SwinGame, sgTypes;
 const SQUARE_SIZE = 40;
-	  MAP_SIZE = 160;
+	  MAP_SIZE = 500;
 type
 	//Used to set the floor tyle
 	cellBiome = (GrassBiome, CaveBiome, ForestBiome, BuildingBiome, Nothing);
@@ -43,6 +43,8 @@ begin
 		DrawText(yText, ColorWhite,  'arial', 0, (y * SQUARE_SIZE));
 		DrawLine(ColorGrey, 0, (y * SQUARE_SIZE), (SQUARE_SIZE * (MAP_SIZE + 2)), (y * SQUARE_SIZE));
 	end;
+	DrawFramerate(SQUARE_SIZE, SQUARE_SIZE);
+	
 end;
 
 procedure DrawBuilding(const mapCells : mapCellArray; x, y : integer);
@@ -176,13 +178,13 @@ begin													 //its type, distance from the door
 	end;
 end;
 
-procedure DrawMap(const mapCells : mapCellArray; player : sprite);
+procedure DrawMap(const mapCells : mapCellArray; player : sprite; topX, topY : integer);
 var x, y : integer;
 begin
 	ClearScreen(ColorBlack); //Nothingness is black
-	for x := 0 to MAP_SIZE do
+	for x := topX to (topX + 20) do //for x := 0 to MAP_SIZE do
 	begin
-		for y := 0 to MAP_SIZE do
+		for y := topY to (topY + 20) do //for y := 0 to MAP_SIZE do
 		begin
 			if mapCells[x, y].biome = GrassBiome then //Draws the outside
 			begin
@@ -607,7 +609,7 @@ begin
 end;
 
 //Sets outside to grass and sets all interiors to nothing
-procedure SetBiome(var mapCells : mapCellArray; player : sprite);
+procedure SetBiome(var mapCells : mapCellArray; player : sprite; topX, topY : integer);
 var x, y : integer;
 begin		
 	for x := 0 to MAP_SIZE do
@@ -635,7 +637,7 @@ begin
 		end;
 	end;
 	GenerateDoors(mapCells);
-	DrawMap(mapCells, player);
+	DrawMap(mapCells, player, topX, topY);
 end;
 
 procedure LoadResources();
@@ -648,7 +650,7 @@ end;
 
 procedure Main();
 var mapCells : mapCellArray;
-	map0X, map0Y : Integer;
+	map0X, map0Y, topX, topY : Integer;
 	player : sprite;
 begin
 	OpenGraphicsWindow('RPG Quest', 800, 800);//(SQUARE_SIZE * 20), (SQUARE_SIZE * 20));
@@ -660,8 +662,10 @@ begin
     SpriteSetY(player ,40 );
 	
 	Randomize();
+	topX := 0;
+	topY := 0;
 	//Initialize world
-	SetBiome(mapCells, player);
+	SetBiome(mapCells, player, -1, -1);
 	
 	
 	//DrawSprite(player );
@@ -669,6 +673,7 @@ begin
 	
 	map0X := 0;
 	map0Y := 0;
+	
 	repeat
 		ProcessEvents();
 		{*******************************************
@@ -681,8 +686,10 @@ begin
 			MoveCameraBy(-SQUARE_SIZE ,-SQUARE_SIZE );
 			SpriteSetX(player ,SpriteX(player) - SQUARE_SIZE );
 			SpriteSetY(player ,Spritey(player) - SQUARE_SIZE );
-			DrawMap(mapCells, player);
-			Delay(50);
+			topX -= 1;
+			topY -= 1;
+			//DrawMap(mapCells, player);
+			//Delay(50);
 			
 		end else if (KeyDown(vk_d) and KeyDown(vk_w))  //>^
 		and ((CameraX() < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenWidth()))) and (CameraY() > map0Y)) then
@@ -690,8 +697,10 @@ begin
 			MoveCameraBy(+SQUARE_SIZE ,-SQUARE_SIZE );
 			SpriteSetX(player ,SpriteX(player) + SQUARE_SIZE );
 			SpriteSetY(player ,Spritey(player) - SQUARE_SIZE );
-			DrawMap(mapCells, player);
-			Delay(50);
+			topX += 1;
+			topY -= 1;
+			//DrawMap(mapCells, player);
+			//Delay(50);
 			
 		end else if (KeyDown(vk_d) and KeyDown(vk_s))  // >V
 		and ((CameraX()  < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenWidth()))) 
@@ -700,8 +709,10 @@ begin
 			MoveCameraBy(+SQUARE_SIZE ,+SQUARE_SIZE );
 			SpriteSetX(player ,SpriteX(player) + SQUARE_SIZE );
 			SpriteSetY(player ,Spritey(player) + SQUARE_SIZE );
-			DrawMap(mapCells, player);
-			Delay(50);
+			topX += 1;
+			topY += 1;
+			//DrawMap(mapCells, player);
+			//Delay(50);
 			
 		end else if (KeyDown(vk_a) and KeyDown(vk_s))  //<V
 		and ((CameraX() > map0X) and 
@@ -710,38 +721,44 @@ begin
 			MoveCameraBy(-SQUARE_SIZE ,+SQUARE_SIZE );
 			SpriteSetX(player ,SpriteX(player) - SQUARE_SIZE );
 			SpriteSetY(player ,Spritey(player) + SQUARE_SIZE );
-			DrawMap(mapCells, player);
-			Delay(50);
+			topX -= 1;
+			topY += 1;
+			//DrawMap(mapCells, player);
+			//Delay(50);
 			
 		end else if KeyDown(vk_w) and (CameraY() > map0Y) then //^
 		begin
 			MoveCameraBy(0 ,-SQUARE_SIZE );
 			SpriteSetY(player ,Spritey(player) - SQUARE_SIZE );
-			DrawMap(mapCells, player);
-			Delay(50);
+			topY -= 1;
+			//DrawMap(mapCells, player);
+			//Delay(50);
 			
 		end else if KeyDown(vk_s) //V
 		and (CameraY() < (map0Y + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenHeight()))) then
 		begin
 			MoveCameraBy(0 ,+SQUARE_SIZE );
 			SpriteSetY(player ,Spritey(player) + SQUARE_SIZE );
-			DrawMap(mapCells, player);
-			Delay(50);
+			topY += 1;
+			//DrawMap(mapCells, player);
+			//Delay(50);
 			
 		end else if KeyDown(vk_a) and (CameraX() > map0X) then //<
 		begin
 			MoveCameraBy(-SQUARE_SIZE ,0 );
 			SpriteSetX(player ,SpriteX(player) - SQUARE_SIZE );
-			DrawMap(mapCells, player);
-			Delay(50);
+			topX -= 1;
+			//DrawMap(mapCells, player);
+			//Delay(50);
 			
 		end else if KeyDown(vk_d) //>
 		and (CameraX() < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenWidth()))) then
 		begin
 			MoveCameraBy(+SQUARE_SIZE ,0 );
 			SpriteSetX(player ,SpriteX(player) + SQUARE_SIZE );
-			DrawMap(mapCells, player);
-			Delay(50);
+			topX += 1;
+			//DrawMap(mapCells, player);
+			//Delay(50);
 			//END MOVE CAMERA
 		{*******************************************
 		 ************CHANGE VIEW CODE***************
@@ -751,7 +768,9 @@ begin
 			map0X := 0;
 			map0Y := 0;
 			MoveCameraTo(map0X ,map0Y );
-			DrawMap(mapCells, player);
+			topX := map0X;
+			topY := map0Y;
+			//DrawMap(mapCells, player);
 			
 		//INTERIORS
 		end else if KeyDown(vk_x) then //BUILDINGS
@@ -759,25 +778,32 @@ begin
 			map0X := SQUARE_SIZE * (MAP_SIZE div 2 + 2);
 			map0Y := 0;
 			MoveCameraTo(map0X ,map0Y);
-			DrawMap(mapCells, player);
+			topX := map0X div SQUARE_SIZE;
+			topY := map0Y;
+			//DrawMap(mapCells, player);
 			
 		end else if KeyDown(vk_c) then //CAVES
 		begin
 			map0X := 0;
 			map0Y := SQUARE_SIZE * (MAP_SIZE div 2 + 2);
 			MoveCameraTo(map0X ,map0Y );
-			DrawMap(mapCells, player);
+			topX := map0X;
+			topY := map0Y div SQUARE_SIZE;
+			//DrawMap(mapCells, player);
 			
 		end else if KeyDown(vk_v) then //FORESTS
 		begin
 			map0X := SQUARE_SIZE * (MAP_SIZE div 2 + 2);
 			map0Y := SQUARE_SIZE * (MAP_SIZE div 2 + 2);
 			MoveCameraTo(map0X ,map0Y );
-			DrawMap(mapCells, player);
+			topX := map0X div SQUARE_SIZE;
+			topY := map0Y div SQUARE_SIZE;
+			//DrawMap(mapCells, player);
 		end else if KeyTyped(vk_r) then //Generate new map
 		begin
-			SetBiome(mapCells, player);
+			SetBiome(mapCells, player, topX, topY);
 		end;
+		DrawMap(mapCells, player, topX, topY);
 			//END CHANGE VIEW
 	until WindowCloseRequested();
 
