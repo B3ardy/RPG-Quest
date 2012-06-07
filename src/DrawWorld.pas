@@ -4,11 +4,32 @@ interface
 
 uses SwinGame, sgTypes, TypeDec;
 
+procedure DrawGrid();
 procedure DrawBuilding(const mapCells : mapCellArray; x, y : integer);
 Procedure DrawStructures(const mapCells : mapCellArray);
-procedure DrawMap(const mapCells : mapCellArray; player : sprite; topX, topY : integer);
+procedure DrawMap(const mapCells : mapCellArray; player : playerData; topX, topY : integer);
 
 implementation
+
+procedure DrawGrid();
+var x, y : integer;
+	yText : String;
+begin
+	for x := 0 to MAP_SIZE + 1 do
+	begin
+		Str(x, yText);
+		DrawText(yText, ColorWhite,  'arial', (x * SQUARE_SIZE), 0);
+		DrawLine(ColorGrey, (x * SQUARE_SIZE), 0, (x * SQUARE_SIZE), (SQUARE_SIZE * (MAP_SIZE + 2)));
+	end;
+		
+	for y := 0 to MAP_SIZE + 1 do
+	begin
+		Str(y, yText);
+		DrawText(yText, ColorWhite,  'arial', 0, (y * SQUARE_SIZE));
+		DrawLine(ColorGrey, 0, (y * SQUARE_SIZE), (SQUARE_SIZE * (MAP_SIZE + 2)), (y * SQUARE_SIZE));
+	end;
+	//DrawFramerate(SQUARE_SIZE, SQUARE_SIZE);
+end;
 
 procedure DrawBuilding(const mapCells : mapCellArray; x, y : integer);
 begin
@@ -141,7 +162,7 @@ begin													 //its type, distance from the door
 	end;
 end;
 
-procedure DrawMap(const mapCells : mapCellArray; player : sprite; topX, topY : integer);
+procedure DrawMap(const mapCells : mapCellArray; player : playerData; topX, topY : integer);
 var x, y : integer;
 begin
 	ClearScreen(ColorBlack); //Nothingness is black
@@ -194,9 +215,9 @@ begin
 		end;
 	end;
 	DrawStructures(mapCells); //Draws rest of Structures on top of grass around their door
-	//DrawGrid();
-	DrawSprite(player );
-	UpdateSprite(player);
+	DrawSprite(player.graphic);
+	DrawGrid();
+	UpdateSprite(player.graphic);
 	DrawFramerate(SQUARE_SIZE, SQUARE_SIZE);
 	RefreshScreen();
 end;

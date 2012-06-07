@@ -2,6 +2,8 @@ unit TypeDec;
 
 interface
 
+uses SwinGame, sgTypes;
+
 const SQUARE_SIZE = 40;
 	  MAP_SIZE = 500;
 type
@@ -22,9 +24,13 @@ type
 		case cType : cellType of //sets type of cell
 			Door : (dType : terrainType; size : integer); //door sets what type of door (cave/forest/building)
 			Barrier : (bType : terrainType); //Sets what kind of barrier (cave/forest/building)
-			Terrain : (tType : terrainType); //Probably not needed. This can be done with biome
+			Terrain : (tType : terrainType); //Used for stuff; probably not neeeded but eh
 	end;
 	
+	playerData = record
+		graphic : sprite;
+		health, level, xp, xLocation, yLocation : Integer;
+	end;
 	//Game World
 	mapCellArray = array [0 .. MAP_SIZE, 0 .. MAP_SIZE] of mapCell;
 	

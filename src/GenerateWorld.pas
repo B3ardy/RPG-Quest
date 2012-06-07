@@ -10,7 +10,7 @@ procedure GenerateStructures(var mapCells : mapCellArray; x0, y0 : integer);
 procedure GenerateInteriorDoors(var mCell : mapCell; tType : integer);
 function AreaClear(const mapCells : mapCellArray; x0, y0 : integer) : Boolean;
 procedure GenerateDoors(var mapCells : mapCellArray);
-procedure SetBiome(var mapCells : mapCellArray; player : sprite; topX, topY : integer);
+procedure SetBiome(var mapCells : mapCellArray{; player : sprite; topX, topY : integer});
 
 implementation
 
@@ -386,7 +386,7 @@ begin
 end;
 
 //Sets outside to grass and sets all interiors to nothing
-procedure SetBiome(var mapCells : mapCellArray; player : sprite; topX, topY : integer);
+procedure SetBiome(var mapCells : mapCellArray{; player : sprite; topX, topY : integer});
 var x, y : integer;
 begin		
 	for x := 0 to MAP_SIZE do
