@@ -29,7 +29,7 @@ begin
 	begin
 		if player.yLocation >= i then
 		begin
-			topX := player.yLocation - i;
+			topy := player.yLocation - i;
 			break;
 		end;
 	end;
