@@ -15,7 +15,7 @@ implementation
 procedure InitPlayer(var player : playerData; const mapCells : mapCellArray);
 var spriteLocation : point2d;
 begin
-	player.graphic := CreateSprite(BitmapNamed('player'));
+	player.graphic := CreateSprite(BitmapNamed('playerAnim'), AnimationScriptNamed('playerMov'));//BitmapNamed('player'));
 	player.health := 80;
 	player.level := 1;
 	player.xp := 0;
@@ -25,6 +25,7 @@ begin
 	until mapCells[player.xLocation, player.yLocation].cType = Terrain;
 	spriteLocation.x := player.xLocation * 40;
 	spriteLocation.y := player.yLocation * 40;
+	SpriteStartAnimation(player.graphic, 'standing');
 	SpriteSetPosition(player.graphic, spriteLocation);
 end;
 
@@ -168,6 +169,7 @@ end;
 
 procedure movePlayer(var topX, topY, map0X, map0Y : integer; var player : playerData; const mapCells : mapCellArray);
 var moved : boolean;
+	animDiagMove : Integer;
 begin
 	moved := false;
 	if (KeyDown(vk_a) and KeyDown(vk_w)) //<^
@@ -175,18 +177,15 @@ begin
 	begin
 		player.xLocation -= 1;
 		player.yLocation -= 1;
-	
-		SpriteSetX(player.graphic ,SpriteX(player.graphic) - SQUARE_SIZE );
-		SpriteSetY(player.graphic ,Spritey(player.graphic) - SQUARE_SIZE );
 		
-		if ((player.xLocation <= topX + 5) and (player.yLocation <= topY + 5)) 
-		or ((player.xLocation >= topX + 15) and (player.yLocation >= topY + 15))
-		or ((player.xLocation >= topX + 15) and (player.yLocation <= topY + 5)) 
-		or ((player.xLocation <= topX + 5) and (player.yLocation >= topY + 15))then
-		begin
-			//MoveCam(topX, topY, map0X, map0Y, player, mapCells);
-		end;
-		Delay(25);
+		animDiagMove := Random(2);
+		if animDiagMove = 0 then
+			SpriteStartAnimation(player.graphic, 'up')
+		else
+			SpriteStartAnimation(player.graphic, 'left');
+		SpriteSetDX(player.graphic, -1);
+		SpriteSetDY(player.graphic, -1);
+		
 		moved := true;
 		
 	end else if (KeyDown(vk_d) and KeyDown(vk_w)) //>^
@@ -194,18 +193,14 @@ begin
 	begin
 		player.xLocation += 1;
 		player.yLocation -= 1;
-	
-		SpriteSetX(player.graphic ,SpriteX(player.graphic) + SQUARE_SIZE );
-		SpriteSetY(player.graphic ,Spritey(player.graphic) - SQUARE_SIZE );
 		
-		if ((player.xLocation <= topX + 5) and (player.yLocation <= topY + 5)) 
-		or ((player.xLocation >= topX + 15) and (player.yLocation >= topY + 15))
-		or ((player.xLocation >= topX + 15) and (player.yLocation <= topY + 5)) 
-		or ((player.xLocation <= topX + 5) and (player.yLocation >= topY + 15))then
-		begin
-			//MoveCam(topX, topY, map0X, map0Y, player, mapCells);
-		end;
-		Delay(25);
+		animDiagMove := Random(2);
+		if animDiagMove = 0 then
+			SpriteStartAnimation(player.graphic, 'up')
+		else
+			SpriteStartAnimation(player.graphic, 'right');
+		SpriteSetDX(player.graphic, +1);
+		SpriteSetDY(player.graphic, -1);
 		moved := true;
 		
 	end else if (KeyDown(vk_d) and KeyDown(vk_s)) // >V
@@ -213,18 +208,14 @@ begin
 	begin
 		player.xLocation += 1;
 		player.yLocation += 1;
-	
-		SpriteSetX(player.graphic ,SpriteX(player.graphic) + SQUARE_SIZE );
-		SpriteSetY(player.graphic ,Spritey(player.graphic) + SQUARE_SIZE );
 		
-		if ((player.xLocation <= topX + 5) and (player.yLocation <= topY + 5)) 
-		or ((player.xLocation >= topX + 15) and (player.yLocation >= topY + 15))
-		or ((player.xLocation >= topX + 15) and (player.yLocation <= topY + 5)) 
-		or ((player.xLocation <= topX + 5) and (player.yLocation >= topY + 15))then
-		begin
-			//MoveCam(topX, topY, map0X, map0Y, player, mapCells);
-		end;
-		Delay(25);
+		animDiagMove := Random(2);
+		if animDiagMove = 0 then
+			SpriteStartAnimation(player.graphic, 'down')
+		else
+			SpriteStartAnimation(player.graphic, 'right');
+		SpriteSetDX(player.graphic, +1);
+		SpriteSetDY(player.graphic, +1);
 		moved := true;
 		
 	end else if (KeyDown(vk_a) and KeyDown(vk_s)) //<V 
@@ -232,56 +223,52 @@ begin
 	begin
 		player.xLocation -= 1;
 		player.yLocation += 1;
-	
-		SpriteSetX(player.graphic ,SpriteX(player.graphic) - SQUARE_SIZE );
-		SpriteSetY(player.graphic ,Spritey(player.graphic) + SQUARE_SIZE );
 		
-		if ((player.xLocation <= topX + 5) and (player.yLocation <= topY + 5)) 
-		or ((player.xLocation >= topX + 15) and (player.yLocation >= topY + 15))
-		or ((player.xLocation >= topX + 15) and (player.yLocation <= topY + 5)) 
-		or ((player.xLocation <= topX + 5) and (player.yLocation >= topY + 15))then
-		begin
-			//MoveCam(topX, topY, map0X, map0Y, player, mapCells);
-		end;
-		Delay(25);
-		Delay(25);
+		animDiagMove := Random(2);
+		if animDiagMove = 0 then
+			SpriteStartAnimation(player.graphic, 'down')
+		else
+			SpriteStartAnimation(player.graphic, 'left');
+		SpriteSetDX(player.graphic, -1);
+		SpriteSetDY(player.graphic, +1);
 		moved := true;
 		
 	end else if KeyDown(vk_w) //^
 	and (not Collision(player, 'w', mapCells)) then 
 	begin
 		player.yLocation -= 1;
-	
-		SpriteSetY(player.graphic ,Spritey(player.graphic) - SQUARE_SIZE );
 		
 		if (player.xLocation <= topX + 5) or (player.xLocation >= topX + 15) then
 			MoveCam(topX, topY, map0X, map0Y, player, mapCells);
-		Delay(25);
-		Delay(25);
+		SpriteStartAnimation(player.graphic, 'up');
+		SpriteSetDX(player.graphic, 0);
+		SpriteSetDY(player.graphic, -1);
 		moved := true;
 		
 	end else if KeyDown(vk_s) //V
 	and (not Collision(player, 's', mapCells)) then 
 	begin
 		player.yLocation += 1;
-	
-		SpriteSetY(player.graphic ,Spritey(player.graphic) + SQUARE_SIZE );
 		
 		if (player.xLocation <= topX + 5) or (player.xLocation >= topX + 15) then
 			MoveCam(topX, topY, map0X, map0Y, player, mapCells);
-		Delay(25);
+		
+		SpriteStartAnimation(player.graphic, 'down');
+		SpriteSetDX(player.graphic, 0);
+		SpriteSetDY(player.graphic, +1);
 		moved := true;
 		
 	end else if KeyDown(vk_a) //<
 	and (not Collision(player, 'a', mapCells)) then 
 	begin
 		player.xLocation -= 1;
-	
-		SpriteSetX(player.graphic ,SpriteX(player.graphic) - SQUARE_SIZE );
 		
 		if (player.yLocation <= topY + 5) or (player.yLocation >= topY + 15) then
 			MoveCam(topX, topY, map0X, map0Y, player, mapCells);
-		Delay(25);
+		
+		SpriteStartAnimation(player.graphic, 'left');
+		SpriteSetDX(player.graphic, -1);
+		SpriteSetDY(player.graphic, 0);
 		moved := true;
 		
 	end else if KeyDown(vk_d) //>
@@ -289,11 +276,12 @@ begin
 	begin
 		player.xLocation += 1;
 		
-		SpriteSetX(player.graphic ,SpriteX(player.graphic) + SQUARE_SIZE );
-		
 		if (player.yLocation <= topY + 5) or (player.yLocation >= topY + 15) then
 			MoveCam(topX, topY, map0X, map0Y, player, mapCells);
-		Delay(25);
+		
+		SpriteStartAnimation(player.graphic, 'right');
+		SpriteSetDX(player.graphic, +1);
+		SpriteSetDY(player.graphic, 0);
 		moved := true;
 	end;
 	if (mapCells[player.xLocation, player.yLocation].cType = Door) and moved then

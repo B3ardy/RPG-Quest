@@ -1,0 +1,9 @@
+//
+//RPG Quest bundle
+//
+
+FONT,arial,arial.ttf,10
+BITMAP,cells,map.png
+BITMAP,opening,opening.png
+BITMAP,playerAnim,playerAnim.png,40,40,4,4,16
+ANIM,playerMov,playerMov.txt

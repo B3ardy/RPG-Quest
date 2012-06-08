@@ -3,10 +3,11 @@ uses SwinGame, sgTypes, DrawWorld, TypeDec, GenerateWorld, MoveCamera, PlayerCon
 
 procedure LoadResources();
 begin
-	LoadFontNamed('arial', 'arial.ttf', 10);
+	LoadResourceBundle('rpgQuest.txt');
+	{LoadFontNamed('arial', 'arial.ttf', 10);
 	LoadBitmapNamed('cells', 'map.png');
 	LoadBitmapNamed('opening', 'opening.png');
-	LoadBitmapNamed('player', 'player.png');
+	LoadBitmapNamed('player', 'player.png');}
 end;
 
 procedure initGame(var mapCells : mapCellArray; var player : playerData; var topX, topY, map0X, map0Y : Integer);
@@ -57,16 +58,24 @@ begin
 	
 	repeat
 		ProcessEvents();
-		movePlayer(topX, topY, map0X, map0Y, player, mapCells);
-		if not InDeadZone(topX, topY, player) then
+		if SpriteAnimationHasEnded(player.graphic) then
 		begin
-			if (player.xLocation > map0X div SQUARE_SIZE + 5) 
-			and (player.YLocation > map0Y div SQUARE_SIZE + 5) then
+			SpriteSetDX(player.graphic, 0);
+			SpriteSetDY(player.graphic, 0);
+			MoveCameraBy(0 ,0);
+			SpriteSetX(player.graphic ,player.xLocation * SQUARE_SIZE);
+			SpriteSetY(player.graphic ,player.yLocation * SQUARE_SIZE);
+			movePlayer(topX, topY, map0X, map0Y, player, mapCells);
+			if not InDeadZone(topX, topY, player) then
 			begin
-				if (player.xLocation < ((map0X div SQUARE_SIZE) + (MAP_SIZE div 2))) 
-				and (player.yLocation < ((map0Y div SQUARE_SIZE) + (MAP_SIZE div 2))) then
+				if (player.xLocation > map0X div SQUARE_SIZE + 5) 
+				and (player.YLocation > map0Y div SQUARE_SIZE + 5) then
 				begin
-					MoveCam(topX, topY, map0X, map0Y, player, mapCells);
+					if (player.xLocation < ((map0X div SQUARE_SIZE) + (MAP_SIZE div 2 - 3))) 
+					and (player.yLocation < ((map0Y div SQUARE_SIZE) + (MAP_SIZE div 2 - 3))) then
+					begin
+						MoveCam(topX, topY, map0X, map0Y, player, mapCells);
+					end;
 				end;
 			end;
 		end;

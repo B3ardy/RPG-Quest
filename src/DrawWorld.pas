@@ -306,8 +306,8 @@ begin
 		DrawFramerate(SQUARE_SIZE, SQUARE_SIZE);
 		
 	DrawSprite(player.graphic);
-	UpdateSprite(player.graphic);
 	RefreshScreen();
+	UpdateSprite(player.graphic);
 end;
 
 end.

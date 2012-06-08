@@ -22,7 +22,7 @@ begin
 		topX -= 1;
 		topY -= 1;
 		
-		Delay(25);
+		//Delay(25);
 		
 	end else if (KeyDown(vk_d) and KeyDown(vk_w))  //>^
 	and ((CameraX() < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 8) - ScreenWidth()))) 
@@ -34,7 +34,7 @@ begin
 		topX += 1;
 		topY -= 1;
 		
-		Delay(25);
+		//Delay(25);
 		
 	end else if (KeyDown(vk_d) and KeyDown(vk_s))  // >V
 	and ((CameraX()  < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 8) - ScreenWidth()))) 
@@ -47,7 +47,7 @@ begin
 		topX += 1;
 		topY += 1;
 		
-		Delay(25);
+		//Delay(25);
 		
 	end else if (KeyDown(vk_a) and KeyDown(vk_s))  //<V
 	and ((CameraX() > map0X) 
@@ -59,7 +59,7 @@ begin
 		topX -= 1;
 		topY += 1;
 		
-		Delay(25);
+		//Delay(25);
 		
 	end else if KeyDown(vk_w) and (CameraY() > map0Y) then //^
 	begin
@@ -67,17 +67,17 @@ begin
 		
 		topY -= 1;
 		
-		Delay(25);
+		//Delay(25);
 		
 	end else if KeyDown(vk_s) //V
-	and (CameraY() < (map0Y + (SQUARE_SIZE * (MAP_SIZE div 2 + 3) - ScreenHeight()))) 
+	and (CameraY() < (map0Y + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenHeight()))) 
 	and (CameraY() < (MAP_SIZE * SQUARE_SIZE - ScreenHeight())) then 
 	begin
 		MoveCameraBy(0 ,+SQUARE_SIZE );
 		
 		topY += 1;
 		
-		Delay(25);
+		//Delay(25);
 		
 	end else if KeyDown(vk_a) and (CameraX() > map0X) then //<
 	begin
@@ -85,7 +85,7 @@ begin
 		
 		topX -= 1;
 		
-		Delay(25);
+		//Delay(25);
 		
 	end else if KeyDown(vk_d) //>
 	and (CameraX() < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 8) - ScreenWidth())))
@@ -95,7 +95,7 @@ begin
 		
 		topX += 1;
 		
-		Delay(25);
+		//Delay(25);
 	end;
 end;
 
