@@ -2,13 +2,13 @@ unit MoveCamera;
 
 interface
 
-uses SwinGame, sgTypes, TypeDec, PlayerControl;
+uses SwinGame, sgTypes, TypeDec;//, PlayerControl;
 
-procedure MoveCam(var topX, topY, map0X, map0Y: integer; var player : playerData; const mapCells : mapCellArray);
+procedure MoveCam(var topX, topY : Integer; map0X, map0Y: integer; var player : playerData; const mapCells : mapCellArray);
 
 implementation
 
-procedure MoveCam(var topX, topY, map0X, map0Y: integer; var player : playerData; const mapCells : mapCellArray);
+procedure MoveCam(var topX, topY : Integer; map0X, map0Y: integer; var player : playerData; const mapCells : mapCellArray);
 begin
 	{*******************************************
 	 ************MOVE CAMERA CODE***************
@@ -22,10 +22,10 @@ begin
 		topX -= 1;
 		topY -= 1;
 		
-		Delay(50);
+		Delay(25);
 		
 	end else if (KeyDown(vk_d) and KeyDown(vk_w))  //>^
-	and ((CameraX() < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenWidth()))) 
+	and ((CameraX() < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 8) - ScreenWidth()))) 
 	and (CameraY() > map0Y)) 
 	and (CameraX() < (MAP_SIZE * SQUARE_SIZE - ScreenWidth())) then
 	begin
@@ -34,10 +34,10 @@ begin
 		topX += 1;
 		topY -= 1;
 		
-		Delay(50);
+		Delay(25);
 		
 	end else if (KeyDown(vk_d) and KeyDown(vk_s))  // >V
-	and ((CameraX()  < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenWidth()))) 
+	and ((CameraX()  < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 8) - ScreenWidth()))) 
 	and (CameraY() < (map0Y + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenHeight())))) 
 	and (CameraY() < (MAP_SIZE * SQUARE_SIZE - ScreenHeight())) 
 	and (CameraX() < (MAP_SIZE * SQUARE_SIZE - ScreenWidth())) then
@@ -47,7 +47,7 @@ begin
 		topX += 1;
 		topY += 1;
 		
-		Delay(50);
+		Delay(25);
 		
 	end else if (KeyDown(vk_a) and KeyDown(vk_s))  //<V
 	and ((CameraX() > map0X) 
@@ -59,7 +59,7 @@ begin
 		topX -= 1;
 		topY += 1;
 		
-		Delay(50);
+		Delay(25);
 		
 	end else if KeyDown(vk_w) and (CameraY() > map0Y) then //^
 	begin
@@ -67,17 +67,17 @@ begin
 		
 		topY -= 1;
 		
-		Delay(50);
+		Delay(25);
 		
 	end else if KeyDown(vk_s) //V
-	and (CameraY() < (map0Y + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenHeight()))) 
+	and (CameraY() < (map0Y + (SQUARE_SIZE * (MAP_SIZE div 2 + 3) - ScreenHeight()))) 
 	and (CameraY() < (MAP_SIZE * SQUARE_SIZE - ScreenHeight())) then 
 	begin
 		MoveCameraBy(0 ,+SQUARE_SIZE );
 		
 		topY += 1;
 		
-		Delay(50);
+		Delay(25);
 		
 	end else if KeyDown(vk_a) and (CameraX() > map0X) then //<
 	begin
@@ -85,17 +85,17 @@ begin
 		
 		topX -= 1;
 		
-		Delay(50);
+		Delay(25);
 		
 	end else if KeyDown(vk_d) //>
-	and (CameraX() < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 2) - ScreenWidth())))
+	and (CameraX() < (map0X + (SQUARE_SIZE * (MAP_SIZE div 2 + 8) - ScreenWidth())))
 	and (CameraX() < (MAP_SIZE * SQUARE_SIZE - ScreenWidth())) then 
 	begin
 		MoveCameraBy(+SQUARE_SIZE ,0 );
 		
 		topX += 1;
 		
-		Delay(50);
+		Delay(25);
 	end;
 end;
 

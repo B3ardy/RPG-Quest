@@ -6,6 +6,9 @@ uses SwinGame, sgTypes;
 
 const SQUARE_SIZE = 40;
 	  MAP_SIZE = 500;
+
+var showGrid, showSideBar, showFrameRate : boolean;
+
 type
 	//Used to set the floor tyle
 	cellBiome = (GrassBiome, CaveBiome, ForestBiome, BuildingBiome, Nothing);
@@ -24,8 +27,8 @@ type
 		case cType : cellType of //sets type of cell
 			Door : (dType : terrainType; size : integer); //door sets what type of door (cave/forest/building)
 			Barrier : (bType : terrainType); //Sets what kind of barrier (cave/forest/building)
-			Terrain : (tType : terrainType); //Used for stuff; probably not neeeded but eh
-	end;
+			Terrain : (tType : terrainType); //Used for stuff; probably not neeeded but eh 
+	end;									 //could be used for footstep sound effects
 	
 	playerData = record
 		graphic : sprite;

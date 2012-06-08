@@ -393,15 +393,6 @@ begin
 	begin
 		for y := 0 to MAP_SIZE do
 		begin
-			if ((x = 0) and (y <= (MAP_SIZE div 2 + 1))) 
-			or ((y = 0) and (x <= (MAP_SIZE div 2 + 1))) 
-			or ((x = (MAP_SIZE div 2 + 1)) and (y <= (MAP_SIZE div 2 + 1))) 
-			or ((y = (MAP_SIZE div 2 + 1)) and (x <= (MAP_SIZE div 2 + 1))) then
-			begin
-				//ring of trees surrounding outside
-				DrawBitmapPart(BitmapNamed('cells'), 120, 0, SQUARE_SIZE, SQUARE_SIZE, (SQUARE_SIZE * x), (SQUARE_SIZE * y)); 
-				mapCells[x, y].cType := Barrier;
-			end;
 			if (x <= (MAP_SIZE div 2 + 1)) and (y <= (MAP_SIZE div 2 + 1)) then //Outside
 			begin
 				mapCells[x, y].biome := GrassBiome;
@@ -410,6 +401,16 @@ begin
 			begin
 				mapCells[x, y].biome := Nothing;
 				mapCells[x, y].cType := Barrier;
+			end;
+			if ((x = 0) and (y <= (MAP_SIZE div 2 + 1))) 
+			or ((y = 0) and (x <= (MAP_SIZE div 2 + 1))) 
+			or ((x = (MAP_SIZE div 2 + 1)) and (y <= (MAP_SIZE div 2 + 1))) 
+			or ((y = (MAP_SIZE div 2 + 1)) and (x <= (MAP_SIZE div 2 + 1))) then
+			begin
+				//ring of trees surrounding outside
+				//DrawBitmapPart(BitmapNamed('cells'), 120, 0, SQUARE_SIZE, SQUARE_SIZE, (SQUARE_SIZE * x), (SQUARE_SIZE * y)); 
+				mapCells[x, y].cType := Barrier;
+				mapCells[x, y].bType := Forest;
 			end;
 		end;
 	end;
