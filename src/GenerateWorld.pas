@@ -33,13 +33,13 @@ begin			//Generates caves and forests
 	begin
 		for y := 2 to MAP_SIZE div 2 - 2 do
 		begin
-			if (x <= MAP_SIZE div 4) and (y <= MAP_SIZE div 4) then
+			if (x <= MAP_SIZE div 4 + 7) and (y <= MAP_SIZE div 4 + 7) then
 			begin
 				inXoffset := MAP_SIZE div 8;
 				inYoffset := MAP_SIZE div 2 + MAP_SIZE div 8;
 				nType := Cave;
 				nBiome := CaveBiome;
-			end else if (x > MAP_SIZE div 4) and (y > MAP_SIZE div 4) then
+			end else if (x > MAP_SIZE div 4 - 7) and (y > MAP_SIZE div 4 - 7) then
 			begin
 				inXoffset := MAP_SIZE div 4 + MAP_SIZE div 8;
 				inYoffset := MAP_SIZE div 4 + MAP_SIZE div 8;
@@ -47,8 +47,8 @@ begin			//Generates caves and forests
 				nBiome := ForestBiome;
 			end;
 			if (mapCells[x, y].cType = Terrain)
-			and (((x <= MAP_SIZE div 4) and (y <= MAP_SIZE div 4)) 
-			or ((x > MAP_SIZE div 4) and (y > MAP_SIZE div 4))) then
+			and (((x <= MAP_SIZE div 4 + 7) and (y <= MAP_SIZE div 4 + 7)) 
+			or ((x > MAP_SIZE div 4 - 7) and (y > MAP_SIZE div 4 - 7))) then
 			begin
 				n := 0;
 				if (nextGen[(x - 1), (y - 1)].cType <> Terrain) 
