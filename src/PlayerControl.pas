@@ -78,7 +78,7 @@ begin
 		if currentCell.biome = CaveBiome then
 		begin
 			player.yLocation -= MAP_SIZE div 2;
-			SpriteSetY(player.graphic, player.yLocation * SQUARE_SIZE);
+			SpriteSetY(player.graphic, (player.yLocation - 1) * SQUARE_SIZE);
 			map0X := 0;
 			map0Y := 0;
 			for i := 10 downto 0 do
@@ -94,7 +94,7 @@ begin
 			player.yLocation -= MAP_SIZE div 2;
 			player.xLocation -= MAP_SIZE div 2;
 			SpriteSetX(player.graphic, player.xLocation * SQUARE_SIZE);
-			SpriteSetY(player.graphic, player.yLocation * SQUARE_SIZE);
+			SpriteSetY(player.graphic, (player.yLocation - 1) * SQUARE_SIZE);
 			map0X := 0;
 			map0Y := 0;
 			for i := 10 downto 0 do
@@ -131,7 +131,7 @@ begin
 	end else if currentCell.dType = Cave then
 	begin
 		player.yLocation += MAP_SIZE div 2;
-		SpriteSety(player.graphic, player.yLocation * SQUARE_SIZE);
+		SpriteSety(player.graphic, (player.yLocation + 1) * SQUARE_SIZE);
 		map0X := 0;
 		map0Y := SQUARE_SIZE * ((MAP_SIZE div 2) + 2);
 		topY := player.yLocation - 10;
@@ -140,7 +140,7 @@ begin
 		player.yLocation += MAP_SIZE div 2;
 		player.xLocation += MAP_SIZE div 2;
 		SpriteSetX(player.graphic, player.xLocation * SQUARE_SIZE);
-		SpriteSetY(player.graphic, player.yLocation * SQUARE_SIZE);
+		SpriteSetY(player.graphic, (player.yLocation + 1) * SQUARE_SIZE);
 		map0X := SQUARE_SIZE * ((MAP_SIZE div 2) + 2);
 		map0Y := SQUARE_SIZE * ((MAP_SIZE div 2) + 2);
 		topX := player.xLocation - 10;
