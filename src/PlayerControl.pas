@@ -90,6 +90,14 @@ begin
 					break;
 				end;
 			end;
+			for i := 10 downto 0 do
+			begin
+				if player.xLocation >= i then
+				begin
+					topX := player.xLocation - i;
+					break;
+				end;
+			end;
 		end else if currentCell.biome = ForestBiome then
 		begin
 			player.yLocation -= MAP_SIZE div 4 + MAP_SIZE div 8;
@@ -137,6 +145,7 @@ begin
 		map0X := 0;
 		map0Y := SQUARE_SIZE * ((MAP_SIZE div 2) + 2);
 		topY := player.yLocation - 10;
+		topX := player.xLocation - 10;
 	end else if currentCell.dType = Forest then
 	begin
 		player.yLocation += MAP_SIZE div 4 + MAP_SIZE div 8;

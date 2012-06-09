@@ -103,12 +103,16 @@ begin
 end;
 
 Procedure DrawStructures(const mapCells : mapCellArray; topX, topY : integer; const player : playerData); //Draws each cell of the structure.
-var x, y : integer; 									 //What the cell will be depends on 
-begin													 //its type, distance from the door
-	for x := topX to (topX + 20) do//1 to (MAP_SIZE div 2 - 1) do					 //and its neighbours
+var x, y : integer; 						//What the cell will be depends on 
+begin										//its type, distance from the door
+	for x := (topX - 3) to (topX + 22) do	//and its neighbours
 	begin
-		for y := topY to (topY + 20) do//1 to (MAP_SIZE div 2 - 1) do			 //Iterates through all cells in the 
-		begin											 //outside biome
+	if x < 0 then continue;
+	if x > MAP_SIZE then break;
+		for y := topY to (topY + 23) do//Iterates through all cells in the 
+		begin								 //outside biome
+		if y < 0 then continue; 
+		if y > MAP_SIZE then break;
 			if mapCells[x, y].cType = Door then
 			begin
 				if mapCells[x, y].dType = Building then
@@ -191,12 +195,7 @@ begin
 							DrawBitmapPart(BitmapNamed('cells'), 40, 0, 5, 5, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25);
 					end else if mapCells[x, y].cType = Door then 
 					begin
-						if mapCells[x, y].dType = Cave then
-							FillRectangle(ColorBlack, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5)
-						else if mapCells[x, y].dType = Forest then
-							FillRectangle(ColorBlack, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5)
-						else if mapCells[x, y].dType = Building then
-							FillRectangle(ColorBlack, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5);
+						FillRectangle(ColorBlack, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5)
 					end;
 				end else if mapCells[player.xLocation, player.yLocation].biome <> GrassBiome then
 				begin
@@ -206,18 +205,19 @@ begin
 					if mapCells[x, y].biome = CaveBiome then //Draws interiors in interior biomes(caves/forests/buildings)
 					begin											  //Cave
 						DrawBitmapPart(BitmapNamed('cells'), 0, 40, 5, 5, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25);
-						if mapCells[x, y].cType = Door then FillRectangle(ColorYellow, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5);
+						//if mapCells[x, y].cType = Door then FillRectangle(ColorYellow, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5);
 						
 					end else if mapCells[x, y].biome = ForestBiome then //Forest
 					begin
 						DrawBitmapPart(BitmapNamed('cells'), 40, 40, 5, 5, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25);
-						if mapCells[x, y].cType = Door then FillRectangle(ColorYellow, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5);
+						//if mapCells[x, y].cType = Door then FillRectangle(ColorYellow, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5);
 						
 					end else if mapCells[x, y].biome = BuildingBiome then //Building
 					begin
 						DrawBitmapPart(BitmapNamed('cells'), 40, 0, 5, 5, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25);
-						if mapCells[x, y].cType = Door then FillRectangle(ColorYellow, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5);
+						//if mapCells[x, y].cType = Door then FillRectangle(ColorYellow, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5);
 					end;
+					if mapCells[x, y].cType = Door then FillRectangle(ColorYellow, CameraX() + 5 * x0 + 825, CameraY() + 5 * y0 + 25, 5, 5);
 				end;
 					//END DRAW INTERIORS
 				if (x = player.xLocation) and (y = player.yLocation) then //Draw red square to identify player on mini map
@@ -230,7 +230,7 @@ begin
 	end;
 end;
 
-procedure ShowBigMap(const mapCells : mapCellArray);
+procedure ShowBigMap(const mapCells : mapCellArray; const player : playerData);
 var x, y : Integer;
 begin
 	for x := 0 to (MAP_SIZE div 2 + 1) do
@@ -248,15 +248,14 @@ begin
 					DrawBitmapPart(BitmapNamed('cells'), 40, 0, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3));
 			end else if mapCells[x, y].cType = Door then 
 			begin
-				if mapCells[x, y].dType = Cave then
-					FillRectangle(ColorBlack, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3)
-				else if mapCells[x, y].dType = Forest then
-					FillRectangle(ColorBlack, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3)
-				else if mapCells[x, y].dType = Building then
-					FillRectangle(ColorBlack, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3);
+				FillRectangle(ColorBlack, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3)
+			end else if mapCells[x, y].cType = Town then 
+			begin
+				FillRectangle(ColorBlue, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3)
 			end;
 		end;
 	end;
+	FillRectangle(ColorRed, ToWorldX((15 + player.xLocation) * 3), ToWorldY((15 + player.yLocation) * 3), 3, 3)
 end;
 
 procedure DrawSideBar(const player : playerData; const mapCells : mapCellArray);
@@ -335,7 +334,7 @@ begin
 		DrawFramerate(SQUARE_SIZE, SQUARE_SIZE);
 	DrawSprite(player.graphic);
 	if showMap then
-		ShowBigMap(mapCells);
+		ShowBigMap(mapCells, player);
 	RefreshScreen();
 	UpdateSprite(player.graphic);
 end;

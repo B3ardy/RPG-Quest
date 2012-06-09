@@ -16,7 +16,7 @@ type
 	//Door transports to interior
 	//Barrier is impassable
 	//Terrain = !Barrier
-	cellType = (Door, Barrier, Terrain);
+	cellType = (Door, Barrier, Terrain, Town);
 	
 	//Sets what artwork to use
 	terrainType = (Grass, Cave, Forest, Building, Water);
@@ -28,7 +28,15 @@ type
 			Door : (dType : terrainType; size : integer); //door sets what type of door (cave/forest/building)
 			Barrier : (bType : terrainType); //Sets what kind of barrier (cave/forest/building)
 			Terrain : (tType : terrainType); //Used for stuff; probably not neeeded but eh 
-	end;									 //could be used for footstep sound effects
+			Town : (tSize : Integer);		 //could be used for footstep sound effects
+	end;
+	
+	starCell = record
+		perant : point2D;
+		self : point2D;
+		cost : Integer;
+		isTerrain : Boolean;
+	end;
 	
 	playerData = record
 		graphic : sprite;
