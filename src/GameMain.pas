@@ -16,6 +16,7 @@ begin
 	showGrid := false;
 	showSideBar := true;
 	showFrameRate := true;
+	showMap := false;
 	SetBiome(mapCells);
 	InitPlayer(player, mapCells);
 	for i := 10 downto 0 do
@@ -65,7 +66,8 @@ begin
 			MoveCameraBy(0 ,0);
 			SpriteSetX(player.graphic ,player.xLocation * SQUARE_SIZE);
 			SpriteSetY(player.graphic ,player.yLocation * SQUARE_SIZE);
-			movePlayer(topX, topY, map0X, map0Y, player, mapCells);
+			if not showMap then
+				movePlayer(topX, topY, map0X, map0Y, player, mapCells);
 			if not InDeadZone(topX, topY, player) then
 			begin
 				if (player.xLocation > map0X div SQUARE_SIZE + 5) 
@@ -79,6 +81,8 @@ begin
 				end;
 			end;
 		end;
+		if KeyTyped(vk_space) then
+			showMap := not showMap;
 		if KeyTyped(vk_g) then
 			showGrid := not showGrid;
 		if KeyTyped(vk_m) then

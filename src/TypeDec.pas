@@ -7,7 +7,7 @@ uses SwinGame, sgTypes;
 const SQUARE_SIZE = 40;
 	  MAP_SIZE = 500;
 
-var showGrid, showSideBar, showFrameRate : boolean;
+var showGrid, showSideBar, showFrameRate, showMap : boolean;
 
 type
 	//Used to set the floor tyle
@@ -19,7 +19,7 @@ type
 	cellType = (Door, Barrier, Terrain);
 	
 	//Sets what artwork to use
-	terrainType = (Grass, Cave, Forest, Building);
+	terrainType = (Grass, Cave, Forest, Building, Water);
 	
 	//Information on each cell in the game world
 	mapCell = record

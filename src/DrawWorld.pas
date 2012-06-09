@@ -129,12 +129,12 @@ begin													 //its type, distance from the door
 					and (mapCells[x, (y + 1)].cType <> Barrier) then
 					begin //cells above and below aren't cave
 						DrawBitmapPart(BitmapNamed('cells'), 40, 80, SQUARE_SIZE, SQUARE_SIZE, (SQUARE_SIZE * x), (SQUARE_SIZE * y));
-					end else if (mapCells[x, (y - 1)].cType = Barrier) 
+					end else if (mapCells[x, (y - 1)].cType <> Terrain) 
 					and (mapCells[x, (y + 1)].cType <> Barrier) then
 					begin //cell above is forest cell below not forest
 						DrawBitmapPart(BitmapNamed('cells'), 40, 120, SQUARE_SIZE, SQUARE_SIZE, (SQUARE_SIZE * x), (SQUARE_SIZE * y));
 					end else if (mapCells[x, (y - 1)].cType <> Barrier) 
-					and (mapCells[x, (y + 1)].cType = Barrier) then
+					and (mapCells[x, (y + 1)].cType <> Terrain) then
 					begin //cell above not forest cell below forest
 						DrawBitmapPart(BitmapNamed('cells'), 0, 80, SQUARE_SIZE, SQUARE_SIZE, (SQUARE_SIZE * x), (SQUARE_SIZE * y));
 					end;
@@ -230,6 +230,35 @@ begin
 	end;
 end;
 
+procedure ShowBigMap(const mapCells : mapCellArray);
+var x, y : Integer;
+begin
+	for x := 0 to (MAP_SIZE div 2 + 1) do
+	begin
+		for y := 0 to (MAP_SIZE div 2 + 1) do
+		begin
+			DrawBitmapPart(BitmapNamed('cells'), 0, 0, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3)); //Grass
+			if mapCells[x, y].cType = Barrier then //Draws the structures to the minimap
+			begin
+				if mapCells[x, y].bType = Cave then
+					DrawBitmapPart(BitmapNamed('cells'), 0, 40, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3))
+				else if mapCells[x, y].bType = Forest then
+					DrawBitmapPart(BitmapNamed('cells'), 40, 40, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3))
+				else if mapCells[x, y].bType = Building then
+					DrawBitmapPart(BitmapNamed('cells'), 40, 0, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3));
+			end else if mapCells[x, y].cType = Door then 
+			begin
+				if mapCells[x, y].dType = Cave then
+					FillRectangle(ColorBlack, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3)
+				else if mapCells[x, y].dType = Forest then
+					FillRectangle(ColorBlack, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3)
+				else if mapCells[x, y].dType = Building then
+					FillRectangle(ColorBlack, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3);
+			end;
+		end;
+	end;
+end;
+
 procedure DrawSideBar(const player : playerData; const mapCells : mapCellArray);
 begin
 	FillRectangle(RGBColor(144, 51, 0), CameraX() + 800, CameraY(), 250, 800);
@@ -304,8 +333,9 @@ begin
 		DrawSideBar(player, mapCells);
 	if showFrameRate then
 		DrawFramerate(SQUARE_SIZE, SQUARE_SIZE);
-		
 	DrawSprite(player.graphic);
+	if showMap then
+		ShowBigMap(mapCells);
 	RefreshScreen();
 	UpdateSprite(player.graphic);
 end;

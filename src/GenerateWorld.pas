@@ -5,7 +5,7 @@ interface
 uses SwinGame, sgTypes, TypeDec;
 
 procedure SetBarrierType(var mCell, inCell : mapCell; barrierType : terrainType; biome : cellBiome);
-procedure GenerateNature(var mapCells : mapCellArray; x0, y0 : integer; nType : terrainType);
+procedure GenerateNature(var mapCells : mapCellArray);
 procedure GenerateStructures(var mapCells : mapCellArray; x0, y0 : integer);
 procedure GenerateInteriorDoors(var mCell : mapCell; tType : integer);
 function AreaClear(const mapCells : mapCellArray; x0, y0 : integer) : Boolean;
@@ -23,270 +23,63 @@ begin 							//Used for Generating Structures
 	inCell.cType := Terrain;
 end;
 
-procedure GenerateNature(var mapCells : mapCellArray; x0, y0 : integer; nType : terrainType);
-var x, y, inXoffset, inYoffset : integer;
+procedure GenerateNature(var mapCells : mapCellArray);
+var x, y, n, i, inXoffset, inYoffset : integer;
+	nType : terrainType;
 	nBiome : cellBiome;
+	nextGen : mapCellArray;
 begin			//Generates caves and forests
 	//Sets the offsets to place the interiors in the right biomes
-	if nType = Cave then
+	nextGen := mapCells;
+	for x := 2 to MAP_SIZE div 2 - 2 do
 	begin
-		inXoffset := 0;
-		inYoffset := MAP_SIZE div 2;
-		nBiome := CaveBiome;
-	end else if nType = Forest then
-	begin
-		inXoffset := MAP_SIZE div 2;
-		inYoffset := MAP_SIZE div 2;
-		nBiome := ForestBiome;
-	end;
-	
-	// without the necissary diagrams this code could be hard to follow
-	// see diagram
-	if (mapCells[x0, y0].size = 0) or (mapCells[x0, y0].size = 1) then
-	begin
-	{************************************
-	****GENERATE SMALL CAVES/FORESTS*****
-	*************************************}
-		for x := (x0 - 1) to (x0 + 1) do
+		for y := 2 to MAP_SIZE div 2 - 2 do
 		begin
-			for y := (y0 - 2) to y0 do
+			if (x <= MAP_SIZE div 4) and (y <= MAP_SIZE div 4) then
 			begin
-				if (x = x0) and (y= y0) then continue; //Core cave/forest
-				SetBarrierType(mapCells[x, y], mapCells[(x + inXoffset), (y + inYoffset)], nType, nBiome);
+				inXoffset := MAP_SIZE div 8;
+				inYoffset := MAP_SIZE div 2 + MAP_SIZE div 8;
+				nType := Cave;
+				nBiome := CaveBiome;
+			end else if (x > MAP_SIZE div 4) and (y > MAP_SIZE div 4) then
+			begin
+				inXoffset := MAP_SIZE div 4 + MAP_SIZE div 8;
+				inYoffset := MAP_SIZE div 4 + MAP_SIZE div 8;
+				nType := Forest;
+				nBiome := ForestBiome;
+			end;
+			if (mapCells[x, y].cType = Terrain)
+			and (((x <= MAP_SIZE div 4) and (y <= MAP_SIZE div 4)) 
+			or ((x > MAP_SIZE div 4) and (y > MAP_SIZE div 4))) then
+			begin
+				n := 0;
+				if nextGen[(x - 1), (y - 1)].cType <> Terrain then n += 1;
+				if nextGen[(x - 1), y].cType <> Terrain then n += 1;
+				if nextGen[(x - 1), (y + 1)].cType <> Terrain then n += 1;
+				if nextGen[x, (y - 1)].cType <> Terrain then n += 1;
+				if nextGen[x, (y + 1)].cType <> Terrain then n += 1;
+				if nextGen[(x + 1), (y - 1)].cType <> Terrain then n += 1;
+				if nextGen[(x + 1), y].cType <> Terrain then n += 1;
+				if nextGen[(x + 1), (y + 1)].cType <> Terrain then n += 1;
+				if (Random(42 - n * 5) = 0) and (n <> 0) then
+				begin
+					SetBarrierType(nextGen[x, y], nextGen[x + inXoffset, y + inYoffset], nType, nBiome);
+				end;
 			end;
 		end;
-		
-		//extra random parts
-		// 1st gen
-		if Random(2) = 0 then //left
-		begin
-			SetBarrierType(mapCells[(x0 - 2), (y0 - 2)], mapCells[(x0 + inXoffset - 2), (y0 + inYoffset - 2)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 2), (y0 - 1)], mapCells[(x0 + inXoffset - 2), (y0 + inYoffset - 1)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 2), y0], mapCells[(x0 + inXoffset - 2), (y0 + inYoffset)], nType, nBiome);
-		end;
-		
-		
-		if Random(3) = 0 then //top
-		begin
-			SetBarrierType(mapCells[(x0 - 1), (y0 - 3)], mapCells[(x0 + inXoffset - 1), (y0 + inYoffset - 3)], nType, nBiome);
-			SetBarrierType(mapCells[x0, (y0 - 3)], mapCells[(x0 + inXoffset), (y0 + inYoffset - 3)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 1), (y0 - 3)], mapCells[(x0 + inXoffset + 1), (y0 + inYoffset - 3)], nType, nBiome);
-		end;
-		
-		
-		if Random(3) = 0 then //bottom
-			SetBarrierType(mapCells[(x0 + 1), (y0 + 1)], mapCells[(x0 + inXoffset + 1), (y0 + inYoffset + 1)], nType, nBiome);
-
-		
-		if Random(4) = 0 then //right
-		begin
-			SetBarrierType(mapCells[(x0 + 2), (y0 - 2)], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset - 2)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 2), (y0 - 1)], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset - 1)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 2), y0], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset)], nType, nBiome);
-		end;
-		
-		
-		//2nd gen. based on which 1st gen sections got created
-		if (Random(3) = 0) and ((mapCells[(x0 - 2), (y0 - 2)].cType = Barrier) or (mapCells[(x0 - 1), (y0 - 3)].cType = Barrier)) then //top left corner
-			SetBarrierType(mapCells[(x0 - 1), (y0 - 3)], mapCells[(x0 + inXoffset - 1), (y0 + inYoffset - 3)], nType, nBiome);
-			
-		
-		if (Random(3) = 0) and (((mapCells[(x0 + 1), (y0 - 3)].cType = Barrier) or (mapCells[(x0 + 2), (y0 - 2)].cType = Barrier))) then //top right corner
-			SetBarrierType(mapCells[(x0 + 2), (y0 - 3)], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset - 3)], nType, nBiome);
-		
-		
-		if (Random(4) = 0) and (mapCells[(x0 - 2), y0].cType = Barrier) then //bottom left corner
-			SetBarrierType(mapCells[(x0 - 2), (y0 + 1)], mapCells[(x0 + inXoffset - 2), (y0 + inYoffset + 1)], nType, nBiome);
-			
-		
-		if (Random(4) = 0) and (mapCells[(x0 - 1), (y0 - 3)].cType = Barrier) then //above top
-		begin
-			SetBarrierType(mapCells[(x0 - 1), (y0 - 4)], mapCells[(x0 + inXoffset - 1), (y0 + inYoffset - 4)], nType, nBiome);
-			SetBarrierType(mapCells[x0, (y0 - 4)], mapCells[(x0 + inXoffset), (y0 + inYoffset - 4)], nType, nBiome);
-		end;
-			
-		
-		if (Random(4) = 0) and ((mapCells[(x0 + 1), (y0 + 1)].cType = Barrier) or (mapCells[(x0 + 2), y0].cType = Barrier)) then //bottom right corner
-			SetBarrierType(mapCells[(x0 + 2), (y0 + 1)], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset + 1)], nType, nBiome);
-		
-		
-		if (Random(6) = 0 ) and (mapCells[(x0 + 1), (y0 - 3)].cType = Barrier) then //above top to the right
-			SetBarrierType(mapCells[(x0 + 1), (y0 - 4)], mapCells[(x0 + inXoffset + 1), (y0 + inYoffset - 4)], nType, nBiome);
-
-		
-		//3rd gen. based on which 2nd gen sections got created
-		if (Random(2) = 0) and (mapCells[(x0 + 1), (y0 - 4)].cType = Barrier) then //top point
-			SetBarrierType(mapCells[(x0 + 1), (y0 - 5)], mapCells[(x0 + inXoffset + 1), (y0 + inYoffset - 5)], nType, nBiome);
-		
-		
-		if (Random(3) = 0) and (((mapCells[(x0 + 2), y0].cType = Barrier) or (mapCells[(x0 + 2), (y0 + 1)].cType = Barrier))) then //2nd most rightest
-		begin
-			SetBarrierType(mapCells[(x0 + 3), y0], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 3), (y0 + 1)], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset + 1)], nType, nBiome);
-		end;
-		
-		
-		if (Random(4) = 0) and ((mapCells[(x0 - 2), (y0 - 2)].cType = Barrier) or (mapCells[(x0 - 2), (y0 - 3)].cType = Barrier)) then //more left
-		begin
-			SetBarrierType(mapCells[(x0 - 3), (y0 - 1)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset - 1)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 3), (y0 - 2)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset - 2)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 3), (y0 - 3)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset - 3)], nType, nBiome);
-		end;
-		
-		
-		if (Random(6) = 0) and (mapCells[(x0 - 2), (y0 + 1)].cType = Barrier) then //bottom lower left
-			SetBarrierType(mapCells[(x0 - 3), (y0 + 1)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset + 1)], nType, nBiome);
-			
-		
-		if (Random(7) = 0) and (mapCells[(x0 + 2), (y0 + 1)].cType = Barrier) then //bottomest
-			SetBarrierType(mapCells[(x0 + 2), (y0 + 2)], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset + 2)], nType, nBiome);
-		
-		
-		//4th gen. Based on which 3rd gen sections got created
-		if (Random(5) = 1) and (mapCells[(x0 + 3), y0].cType = Barrier) then //most right
-			SetBarrierType(mapCells[(x0 + 4), y0], mapCells[(x0 + inXoffset + 4), (y0 + inYoffset)], nType, nBiome);
-		
-		
-		if (Random(6) = 0) and (mapCells[(x0 - 3), (y0 - 2)].cType = Barrier) then //bottom lower left
-			SetBarrierType(mapCells[(x0 - 4), (y0 - 2)], mapCells[(x0 + inXoffset - 4), (y0 + inYoffset - 2)], nType, nBiome);
-			
-			//END GENERATE SMALL CAVES/FORESTS
-	end else if mapCells[x0, y0].size = 2 then
-	begin
-	{************************************
-	*****GENERATE BIG CAVES/FORESTS******
-	*************************************}
-		for x := (x0 - 2) to (x0 + 2) do
-		begin
-			for y := (y0 - 3) to y0 do
-			begin
-				if (x = x0) and (y= y0) then continue;
-				SetBarrierType(mapCells[x, y], mapCells[(x + inXoffset), (y + inYoffset)], nType, nBiome);
-			end;
-		end;
-		
-		//extra random parts
-		// 1st gen
-		if Random(2) = 0 then //left
-		begin
-			SetBarrierType(mapCells[(x0 - 3), (y0 - 3)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset - 3)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 3), (y0 - 2)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset - 2)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 3), (y0 - 1)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset - 1)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 3), y0], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset)], nType, nBiome);
-		end;
-		
-		
-		if Random(3) = 0 then //top
-		begin
-			SetBarrierType(mapCells[(x0 - 1), (y0 - 4)], mapCells[(x0 + inXoffset - 1), (y0 + inYoffset - 4)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 2), (y0 - 4)], mapCells[(x0 + inXoffset - 2), (y0 + inYoffset - 4)], nType, nBiome);
-			SetBarrierType(mapCells[x0, (y0 - 4)], mapCells[(x0 + inXoffset), (y0 + inYoffset - 4)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 1), (y0 - 4)], mapCells[(x0 + inXoffset + 1), (y0 + inYoffset - 4)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 2), (y0 - 4)], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset - 4)], nType, nBiome);
-		end;
-		
-		
-		if Random(3) = 0 then //bottom left
-		begin
-			SetBarrierType(mapCells[(x0 + 1), (y0 + 1)], mapCells[(x0 + inXoffset + 1), (y0 + inYoffset + 1)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 2), (y0 + 1)], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset + 1)], nType, nBiome);
-		end;
-
-		
-		if Random(4) = 0 then //bottom right
-		begin
-			SetBarrierType(mapCells[(x0 - 2), (y0 + 1)], mapCells[(x0 + inXoffset - 2), (y0 + inYoffset + 1)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 3), (y0 + 1)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset + 1)], nType, nBiome);
-		end;
-		
-		
-		if Random(4) = 0 then //right
-		begin
-			SetBarrierType(mapCells[(x0 + 3), (y0 - 3)], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset - 3)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 3), (y0 - 2)], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset - 2)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 3), (y0 - 1)], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset - 1)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 3), y0], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset)], nType, nBiome);
-		end;
-		
-		//2nd gen. based on which 1st gen sections got created
-		
-		if (Random(3) = 0) and ((mapCells[(x0 - 3), (y0 - 3)].cType = Barrier) or (mapCells[(x0 - 2), (y0 - 4)].cType = Barrier)) then //top left corner
-			SetBarrierType(mapCells[(x0 - 3), (y0 - 4)], mapCells[(x0 + inXoffset - 3), (y0 + inYoffset - 4)], nType, nBiome);
-			
-		
-		if (Random(3) = 0) and (((mapCells[(x0 + 2), (y0 + 4)].cType = Barrier) or (mapCells[(x0 + 3), (y0 + 3)].cType = Barrier))) then //top right corner
-			SetBarrierType(mapCells[(x0 + 3), (y0 + 4)], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset + 4)], nType, nBiome);
-		
-		
-		if (Random(4) = 0) and ((mapCells[(x0 + 2), (y0 + 1)].cType = Barrier) or (mapCells[(x0 + 3), y0].cType = Barrier)) then //bottom left corner
-			SetBarrierType(mapCells[(x0 + 3), (y0 + 1)], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset + 1)], nType, nBiome);
-			
-		
-		if (Random(4) = 0) and (mapCells[x0, (y0 - 4)].cType = Barrier) then //above top
-		begin
-			SetBarrierType(mapCells[(x0 - 1), (y0 - 5)], mapCells[(x0 + inXoffset - 1), (y0 + inYoffset - 5)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 2), (y0 - 5)], mapCells[(x0 + inXoffset - 2), (y0 + inYoffset - 5)], nType, nBiome);
-			SetBarrierType(mapCells[x0, (y0 - 5)], mapCells[(x0 + inXoffset), (y0 + inYoffset - 5)], nType, nBiome);
-		end;
-			
-		
-		if (Random(6) = 0) and ((mapCells[(x0 - 3), (y0 + 1)].cType = Barrier)) then //bottom right corner
-			SetBarrierType(mapCells[(x0 - 4), (y0 + 1)], mapCells[(x0 + inXoffset - 4), (y0 + inYoffset + 1)], nType, nBiome);
-		
-		
-		if (Random(6) = 0 ) and (mapCells[(x0 + 1), (y0 - 4)].cType = Barrier) then //above top to the right
-		begin
-			SetBarrierType(mapCells[(x0 + 1), (y0 - 5)], mapCells[(x0 + inXoffset + 1), (y0 + inYoffset - 5)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 2), (y0 - 5)], mapCells[(x0 + inXoffset + 2), (y0 + inYoffset - 5)], nType, nBiome);
-		end;
-
-		//3rd gen. based on which 2nd gen sections got created
-		
-		if (Random(2) = 0) and (mapCells[(x0 + 1), (y0 - 5)].cType = Barrier) then //top point
-			SetBarrierType(mapCells[(x0 + 1), (y0 - 6)], mapCells[(x0 + inXoffset + 1), (y0 + inYoffset - 6)], nType, nBiome);
-		
-		
-		if (Random(3) = 0) and (((mapCells[(x0 + 3), y0].cType = Barrier) or (mapCells[(x0 + 3), (y0 + 1)].cType = Barrier))) then //2nd most rightest
-		begin
-			SetBarrierType(mapCells[(x0 + 4), (y0 - 1)], mapCells[(x0 + inXoffset + 4), (y0 + inYoffset - 1)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 4), y0], mapCells[(x0 + inXoffset + 4), (y0 + inYoffset)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 + 4), (y0 + 1)], mapCells[(x0 + inXoffset + 4), (y0 + inYoffset + 1)], nType, nBiome);
-		end;
-		
-		
-		if (Random(4) = 0) and ((mapCells[(x0 - 3), (y0 - 2)].cType = Barrier) or (mapCells[(x0 - 3), (y0 - 4)].cType = Barrier)) then //more left
-		begin
-			SetBarrierType(mapCells[(x0 - 4), (y0 - 2)], mapCells[(x0 + inXoffset - 4), (y0 + inYoffset - 2)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 4), (y0 - 3)], mapCells[(x0 + inXoffset - 4), (y0 + inYoffset - 3)], nType, nBiome);
-			SetBarrierType(mapCells[(x0 - 4), (y0 - 4)], mapCells[(x0 + inXoffset - 4), (y0 + inYoffset - 4)], nType, nBiome);
-		end;
-			
-		
-		if (Random(7) = 0) and (mapCells[(x0 + 3), (y0 + 1)].cType = Barrier) then //bottomest
-			SetBarrierType(mapCells[(x0 + 3), (y0 + 2)], mapCells[(x0 + inXoffset + 3), (y0 + inYoffset + 2)], nType, nBiome);
-		
-		
-		//4th gen. Based on which 3rd gen sections got created
-		if (Random(5) = 1) and (mapCells[(x0 + 4), y0].cType = Barrier) then //most right
-			SetBarrierType(mapCells[(x0 + 5), y0], mapCells[(x0 + inXoffset + 5), (y0 + inYoffset)], nType, nBiome);
-		
-		
-		if (Random(6) = 0) and (mapCells[(x0 - 4), (y0 - 3)].cType = Barrier) then //bottom lower left
-			SetBarrierType(mapCells[(x0 - 5), (y0 - 3)], mapCells[(x0 + inXoffset - 5), (y0 + inYoffset - 3)], nType, nBiome);
-		
-			//END GENERATE BIG CAVES/FORESTS
 	end;
+	mapCells := nextGen;
 end;
 
 procedure GenerateStructures(var mapCells : mapCellArray; x0, y0 : integer);
 var  x, y : integer;
 begin
-	Randomize();
+{	Randomize();
 	mapCells[x0, y0].size := Random(3); //Size of the structure.
 	
 	if mapCells[x0, y0].dType <> Building then //Generates the caves and forests
 	begin
-		GenerateNature(mapCells, x0, y0, mapCells[x0, y0].dType);
+		GenerateNature(mapCells, 5);
 	end else if mapCells[x0, y0].dType = Building then //Generates the building.
 	begin
 		if mapCells[x0, y0].size = 0 then //small building 3X4
@@ -319,7 +112,7 @@ begin
 				end;
 			end;
 		end;
-	end;
+	end;}
 end;
 
 procedure GenerateInteriorDoors(var mCell : mapCell; tType : integer);
@@ -347,42 +140,106 @@ begin 				//so the accompanying buidlings will not overlap
 end;
 
 procedure GenerateDoors(var mapCells : mapCellArray); //Generates doors on to the game world
-var x, y, seed, xOffset, yOffset, tType : integer;
+var x, y, seed, x0, y0, inXoffset, inYoffset : integer;
+	nType : terrainType;
+	nBiome : cellBiome;
 begin
 	Randomize();
-	seed := 200;
+	seed := 300;
+	//seed := 300;
 	for x := 7 to ((MAP_SIZE div 2) - 7) do		//will not place doors close to edges
 	begin										//doors allways point down so 
 		for y := 7 to ((MAP_SIZE div 2) - 2) do //They can be placed closer to 
 		begin									//the bottom edge than to the top
 			if (Random(seed) = 0) and AreaClear(mapCells, x, y) then //Checks that no other doors are in the 
 			begin													 //vicinity. So structure don't overlap
-				tType := Random(3) + 1;
-				mapCells[x, y].cType := Door; //Set cell type to door
-				mapCells[x, y].dType := terrainType(tType); 	//Set the type of door (cave/forest/building)
-				Delay(3); //delay provides more randomness		  and hence what type of structure will be there
-						  //because random() tied to clock
-				xOffset := 0; //Sets doors for interiors
-				yOffset := 0;
-				if mapCells[x, y].dType = Cave then
+				if (x <= MAP_SIZE div 4) and (y <= MAP_SIZE div 4) then //caves
 				begin
-					yOffset := MAP_SIZE div 2;
-					GenerateInteriorDoors(mapCells[(x + xOffset), (y + yOffset)], tType);
-				end else if mapCells[x, y].dType = Forest then
+					inXoffset := MAP_SIZE div 8;
+					inYoffset := MAP_SIZE div 2 + MAP_SIZE div 8;
+					nType := Cave;
+					nBiome := CaveBiome;
+					mapCells[x, y].cType := Door;	//Set cell type to door
+					mapCells[x, y].dType := Cave;	//Set the type of door (cave)
+					GenerateInteriorDoors(mapCells[x + MAP_SIZE div 8, (y + MAP_SIZE div 2 + MAP_SIZE div 8)], 1);
+					SetBarrierType(mapCells[x - 1, y], mapCells[x + inXoffset - 1, y + inYoffset], nType, nBiome);
+					SetBarrierType(mapCells[x - 2, y], mapCells[x + inXoffset - 2, y + inYoffset], nType, nBiome);
+					SetBarrierType(mapCells[x + 1, y], mapCells[x + inXoffset + 1, y + inYoffset], nType, nBiome);
+					SetBarrierType(mapCells[x + 2, y], mapCells[x + inXoffset + 2, y + inYoffset], nType, nBiome);
+					SetBarrierType(mapCells[x - 1, y - 1], mapCells[x + inXoffset - 1, y + inYoffset - 1], nType, nBiome);
+					SetBarrierType(mapCells[x , y - 1], mapCells[x + inXoffset, y + inYoffset - 1], nType, nBiome);
+					SetBarrierType(mapCells[x + 1, y - 1], mapCells[x + inXoffset + 1, y + inYoffset - 1], nType, nBiome);
+					SetBarrierType(mapCells[x + 1, y - 2], mapCells[x + inXoffset, y + inYoffset - 2], nType, nBiome);
+				end else if (x <= MAP_SIZE div 4) and (y >= MAP_SIZE div 4)  then //Small Towns
 				begin
-					xOffset := MAP_SIZE div 2;
-					yOffset := MAP_SIZE div 2;
-					GenerateInteriorDoors(mapCells[(x + xOffset), (y + yOffset)], tType);
-				end else if mapCells[x, y].dType = Building then begin
-					xOffset := MAP_SIZE div 2;
-					GenerateInteriorDoors(mapCells[(x + xOffset), (y + yOffset)], tType);
+					mapCells[x, y].cType := Door;		//Set cell type to door
+					mapCells[x, y].dType := Building;	//Set the type of door (building)
+					GenerateInteriorDoors(mapCells[x + MAP_SIZE div 2 + 2, y], 3);
+				end else if (x >= MAP_SIZE div 4) and (y <= MAP_SIZE div 4) then //Big Towns
+				begin
+					mapCells[x, y].cType := Door;		//Set cell type to door
+					mapCells[x, y].dType := Building;	//Set the type of door (building)
+					GenerateInteriorDoors(mapCells[x + MAP_SIZE div 2 + 2, y], 3);
+				end else begin //Forest
+					inXoffset := MAP_SIZE div 4 + MAP_SIZE div 8;
+					inYoffset := MAP_SIZE div 4 + MAP_SIZE div 8;
+					nType := Forest;
+					nBiome := ForestBiome;
+					mapCells[x, y].cType := Door;		//Set cell type to door
+					mapCells[x, y].dType := Forest;		//Set the type of door (forest)
+					GenerateInteriorDoors(mapCells[x + MAP_SIZE div 4 + MAP_SIZE div 8, (y + MAP_SIZE div 4) + MAP_SIZE div 8], 2);
+					SetBarrierType(mapCells[x - 1, y], mapCells[x + inXoffset - 1, y + inYoffset], nType, nBiome);
+					SetBarrierType(mapCells[x - 2, y], mapCells[x + inXoffset - 2, y + inYoffset], nType, nBiome);
+					SetBarrierType(mapCells[x + 1, y], mapCells[x + inXoffset + 1, y + inYoffset], nType, nBiome);
+					SetBarrierType(mapCells[x + 2, y], mapCells[x + inXoffset + 2, y + inYoffset], nType, nBiome);
+					SetBarrierType(mapCells[x - 1, y - 1], mapCells[x + inXoffset - 1, y + inYoffset - 1], nType, nBiome);
+					SetBarrierType(mapCells[x , y - 1], mapCells[x + inXoffset, y + inYoffset - 1], nType, nBiome);
+					SetBarrierType(mapCells[x + 1, y - 1], mapCells[x + inXoffset + 1, y + inYoffset - 1], nType, nBiome);
+					SetBarrierType(mapCells[x + 1, y - 2], mapCells[x + inXoffset, y + inYoffset - 2], nType, nBiome);
 				end;
-				
-				GenerateStructures(mapCells, x, y); //Generate the structures around the doors
 				
 			end;
 		end;
 	end;
+	for x := 0 to 55 do
+		GenerateNature(mapCells);
+end;
+
+procedure ClearPaths(var mapCells : mapCellArray);
+var x, y, i, inXoffset, inYoffset : integer;
+	nextGen : mapCellArray;
+begin			
+	nextGen := mapCells;
+	for x := 2 to MAP_SIZE div 2 - 2 do
+	begin
+		for y := 2 to MAP_SIZE div 2 - 2 do
+		begin
+			if (x <= MAP_SIZE div 4) and (y <= MAP_SIZE div 4) then
+			begin
+				inXoffset := MAP_SIZE div 8;
+				inYoffset := MAP_SIZE div 2 + MAP_SIZE div 8;
+			end else if (x > MAP_SIZE div 4) and (y > MAP_SIZE div 4) then
+			begin
+				inXoffset := MAP_SIZE div 4 + MAP_SIZE div 8;
+				inYoffset := MAP_SIZE div 4 + MAP_SIZE div 8;
+			end;
+			if (mapCells[x, y].cType = Door)
+			and (((x <= MAP_SIZE div 4) and (y <= MAP_SIZE div 4)) 
+			or ((x > MAP_SIZE div 4) and (y > MAP_SIZE div 4))) then
+			begin
+				for i := 1 to 5 do
+				begin
+					if (mapCells[x, y + i].cType = Barrier) and (mapCells[x, y + i + 1].biome = GrassBiome) then 
+					begin
+						nextGen[x, y + i].cType := Terrain;
+						nextGen[x + inXoffset, y + i + inYoffset].biome := Nothing;
+						nextGen[x + inXoffset, y + i + inYoffset].cType := Barrier;
+					end;
+				end;
+			end;
+		end;
+	end;
+	mapCells := nextGen;
 end;
 
 //Sets outside to grass and sets all interiors to nothing
@@ -414,7 +271,8 @@ begin
 			end;
 		end;
 	end;
-	GenerateDoors(mapCells);
+	GenerateDoors(mapCells); //Place "seeds" for structures
+	ClearPaths(mapCells); //clears paths to doorways for structures
 end;
 
 end.
