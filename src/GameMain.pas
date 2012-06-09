@@ -14,6 +14,7 @@ procedure initGame(var mapCells : mapCellArray; var player : playerData; var top
 var i : Integer;
 begin
 	showGrid := false;
+	showMap := false;
 	showSideBar := true;
 	showFrameRate := true;
 	SetBiome(mapCells);
@@ -65,7 +66,8 @@ begin
 			MoveCameraBy(0 ,0);
 			SpriteSetX(player.graphic ,player.xLocation * SQUARE_SIZE);
 			SpriteSetY(player.graphic ,player.yLocation * SQUARE_SIZE);
-			movePlayer(topX, topY, map0X, map0Y, player, mapCells);
+			if not showMap then
+				movePlayer(topX, topY, map0X, map0Y, player, mapCells);
 			if not InDeadZone(topX, topY, player) then
 			begin
 				if (player.xLocation > map0X div SQUARE_SIZE + 5) 
@@ -85,6 +87,8 @@ begin
 			showSideBar := not showSideBar;
 		if KeyTyped(vk_r) then //Generate new map
 			initGame(mapCells, player, topX, topY, map0X, map0Y);
+		if KeyTyped(vk_space) then 
+			showMap := not showMap;
 		
 		DrawMap(mapCells, player, topX, topY);
 	until WindowCloseRequested();

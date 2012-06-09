@@ -7,7 +7,7 @@ uses SwinGame, sgTypes;
 const SQUARE_SIZE = 40;
 	  MAP_SIZE = 500;
 
-var showGrid, showSideBar, showFrameRate : boolean;
+var showGrid, showSideBar, showFrameRate, showMap : boolean;
 
 type
 	//Used to set the floor tyle

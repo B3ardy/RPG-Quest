@@ -238,6 +238,31 @@ begin
 	DrawMiniMap(mapCells, player, player.xLocation - 20, player.yLocation - 20);
 end;
 
+procedure ShowBigMap(const mapCells : mapCellArray; const player : playerData);
+var x, y : Integer;
+begin
+	for x := 0 to (MAP_SIZE div 2 + 1) do
+	begin
+		for y := 0 to (MAP_SIZE div 2 + 1) do
+		begin
+			DrawBitmapPart(BitmapNamed('cells'), 0, 0, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3)); //Grass
+			if mapCells[x, y].cType = Barrier then //Draws the structures to the minimap
+			begin
+				if mapCells[x, y].bType = Cave then
+					DrawBitmapPart(BitmapNamed('cells'), 0, 40, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3))
+				else if mapCells[x, y].bType = Forest then
+					DrawBitmapPart(BitmapNamed('cells'), 40, 40, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3))
+				else if mapCells[x, y].bType = Building then
+					DrawBitmapPart(BitmapNamed('cells'), 40, 0, 3, 3, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3));
+			end else if mapCells[x, y].cType = Door then
+			begin
+				FillRectangle(ColorBlack, ToWorldX((15 + x) * 3), ToWorldY((15 + y) * 3), 3, 3)
+			end;
+		end;
+	end;
+	FillRectangle(ColorRed, ToWorldX((15 + player.xLocation) * 3), ToWorldY((15 + player.yLocation) * 3), 3, 3)
+end;
+
 procedure DrawMap(const mapCells : mapCellArray; player : playerData; topX, topY : integer);
 var x, y : integer;
 begin
@@ -306,6 +331,8 @@ begin
 		DrawFramerate(SQUARE_SIZE, SQUARE_SIZE);
 		
 	DrawSprite(player.graphic);
+	if showMap then
+		ShowBigMap(mapCells, player);
 	RefreshScreen();
 	UpdateSprite(player.graphic);
 end;
